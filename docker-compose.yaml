@@ -1,14 +1,16 @@
+version: '3.1'
 services:
-  mysql:
-    image: 'mysql:latest'
+
+  db:
+    image: mysql
+    restart: always
     environment:
-      - 'MYSQL_DATABASE=mydatabase'
-      - 'MYSQL_PASSWORD=secret'
-      - 'MYSQL_ROOT_PASSWORD=verysecret'
-      - 'MYSQL_USER=myuser'
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: cloud_db
     ports:
-      - '3306'
-  redis:
-    image: 'redis:latest'
+      - "3306:3306"
+  adminer:
+    image: adminer
+    restart: always
     ports:
-      - '6379'
+      - "4321:8080"
