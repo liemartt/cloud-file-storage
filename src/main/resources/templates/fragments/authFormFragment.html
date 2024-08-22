@@ -1,0 +1,13 @@
+<div class="form-floating mb-3">
+    <input type="text" class="form-control" id="username" name="username" th:field="*{username}"
+        required>
+    <label for="username">Username</label>
+</div>
+<div th:if="${#fields.hasErrors()}" th:errors="*{username}" class="alert alert-danger"></div>
+
+<div class="form-floating mb-3">
+    <input type="password" class="form-control" id="password" name="password" th:field="*{password}"
+        required>
+    <label for="password">Password</label>
+    </div>
+<div th:if="${#fields.hasErrors()}" th:errors="*{password}" class="alert alert-danger"></div>
