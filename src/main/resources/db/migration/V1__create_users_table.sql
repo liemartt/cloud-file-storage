@@ -2,8 +2,8 @@ drop table if exists users;
 CREATE TABLE users
 (
     id       INT NOT NULL AUTO_INCREMENT,
-    password VARCHAR(255),
-    username VARCHAR(255),
+    username VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     role     VARCHAR(255),
     PRIMARY KEY (id)
 );

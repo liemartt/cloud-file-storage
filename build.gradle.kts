@@ -1,8 +1,8 @@
 plugins {
     java
+    idea
     id("org.springframework.boot") version "3.3.2"
     id("io.spring.dependency-management") version "1.1.6"
-    id("org.flywaydb.flyway") version "10.17.1"
 }
 
 group = "com.liemartt"
@@ -13,10 +13,11 @@ java {
         languageVersion = JavaLanguageVersion.of(21)
     }
 }
-flyway {
-    url = "jdbc:mysql://localhost:3306/cloud_db"
-    user = "root"
-    password = "example"
+idea{
+    module {
+        isDownloadJavadoc = true
+        isDownloadSources = true
+    }
 }
 
 configurations {
@@ -31,14 +32,14 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+//    implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation ("org.flywaydb:flyway-core:10.17.1")
     implementation ("org.flywaydb:flyway-mysql:10.17.1")
-    implementation("org.springframework.session:spring-session-data-redis")
+//    implementation("org.springframework.session:spring-session-data-redis")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
