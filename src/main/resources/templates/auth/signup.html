@@ -9,13 +9,13 @@
 </head>
 
 <body>
-
     <div class="container justify-content-center align-items-center">
         <div class="d-flex justify-content-center align-items-center vh-100">
             <div class="row">
                 <h2 class="text-center">Sign up</h2>
                 <form action="/signup" method="post" th:object="${userDto}">
                     <div th:replace="~{fragments/authFormFragment.html}"></div>
+
                     <div>
                         <div class="mb-3"><a href="/login">Already have an account</a></div>
                         <button type="submit" class="btn btn-primary mb-3 w-100">Submit</button>

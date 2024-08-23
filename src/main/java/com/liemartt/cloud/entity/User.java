@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 @Table(name = "users", indexes = @Index(name = "username_index", columnList = "username"))
 public class User {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
     
     @Column(unique = true, nullable = false)
@@ -18,4 +18,10 @@ public class User {
     
     @Enumerated(EnumType.STRING)
     private Role role;
+    
+    public User(String username, String password, Role role) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
 }
