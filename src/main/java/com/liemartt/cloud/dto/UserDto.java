@@ -11,6 +11,6 @@ public class UserDto {
     
     private String username;
     @NotEmpty
-    @Size(min=3, max = 30, message = "Username should be between 3 and 30 symbols")
+    @Size(min=3, max = 30, message = "Password should be between 3 and 30 symbols")
     private String password;
 }

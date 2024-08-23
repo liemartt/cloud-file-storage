@@ -1,12 +1,11 @@
 package com.liemartt.cloud.controller;
 
 import com.liemartt.cloud.dto.UserDto;
-import com.liemartt.cloud.entity.User;
+import com.liemartt.cloud.exception.InvalidUserRequestException;
 import com.liemartt.cloud.service.AuthenticationService;
+import com.liemartt.cloud.util.ErrorParser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,9 +25,9 @@ public class SignUpController {
     }
     
     @PostMapping
-    public String signUp(@ModelAttribute("userDto") @Valid UserDto userDto, BindingResult bindingResult) {
+    public String processSignUp(@ModelAttribute("userDto") @Valid UserDto userDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "auth/signup";
+            throw new InvalidUserRequestException(ErrorParser.parseError(bindingResult));
         }
         authenticationService.signUp(userDto);
         
