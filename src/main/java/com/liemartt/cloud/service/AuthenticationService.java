@@ -8,15 +8,17 @@ import com.liemartt.cloud.exception.UsernameAlreadyExistsException;
 import com.liemartt.cloud.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     
     public void signUp(UserDto userDto) {
-        User user = new User(userDto.getUsername(), userDto.getPassword(), Role.ROLE_USER);
+        User user = new User(userDto.getUsername(), passwordEncoder.encode(userDto.getPassword()), Role.ROLE_USER);
         try {
             userRepository.save(user);
         } catch (DataIntegrityViolationException e) {

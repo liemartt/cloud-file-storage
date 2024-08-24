@@ -1,7 +1,9 @@
 package com.liemartt.cloud.service;
 
+import com.liemartt.cloud.dto.UserDto;
 import com.liemartt.cloud.entity.Role;
 import com.liemartt.cloud.entity.User;
+import com.liemartt.cloud.exception.UsernameAlreadyExistsException;
 import com.liemartt.cloud.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +23,8 @@ import org.testcontainers.utility.TestcontainersConfiguration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
-@Testcontainers
 @SpringBootTest
+@Testcontainers
 @ActiveProfiles("test")
 class AuthenticationServiceTest {
     @Autowired
@@ -35,10 +36,24 @@ class AuthenticationServiceTest {
     @ServiceConnection
     static MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:latest");
     
+    
     @Test
     void signUpTest_UniqueUsername_SuccessSignUp() {
-        userRepository.save(new User("artem", "qwe", Role.ROLE_USER));
-        System.out.println(userRepository.findAll());
-        assertEquals(1, userRepository.findAll().size());
+        UserDto userDto = new UserDto("unique_user", "unique_user");
+        
+        authenticationService.signUp(userDto);
+        
+        User user = userRepository.findByUsername(userDto.getUsername()).get();
+        assertEquals(userDto.getUsername(), user.getUsername());
+    }
+    
+    @Test
+    void signUpTest_NonUniqueUsername_FailureSignUp() {
+        UserDto user = new UserDto("non_unique_user", "non_unique_user");
+        
+        authenticationService.signUp(user);
+        
+        
+        assertThrows(UsernameAlreadyExistsException.class, () -> authenticationService.signUp(user));
     }
 }
