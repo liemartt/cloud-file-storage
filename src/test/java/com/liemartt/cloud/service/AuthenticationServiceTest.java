@@ -1,40 +1,40 @@
 package com.liemartt.cloud.service;
 
 import com.liemartt.cloud.dto.UserDto;
-import com.liemartt.cloud.entity.Role;
 import com.liemartt.cloud.entity.User;
 import com.liemartt.cloud.exception.UsernameAlreadyExistsException;
 import com.liemartt.cloud.repository.UserRepository;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.shaded.org.checkerframework.checker.units.qual.A;
-import org.testcontainers.utility.TestcontainersConfiguration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Testcontainers
 @ActiveProfiles("test")
-class AuthenticationServiceTest {
+class AuthenticationServiceTest  {
     @Autowired
     private AuthenticationService authenticationService;
     @Autowired
     private UserRepository userRepository;
-    
+
     @Container
     @ServiceConnection
-    static MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:latest");
+    public static MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:latest");
+    
+    @BeforeAll
+    public static void start() {
+        mySQLContainer.start();
+    }
     
     
     @Test

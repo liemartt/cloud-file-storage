@@ -3,13 +3,16 @@ package com.liemartt.cloud;
 import com.liemartt.cloud.entity.Role;
 import com.liemartt.cloud.entity.User;
 import com.liemartt.cloud.repository.UserRepository;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.testcontainers.containers.MySQLContainer;
@@ -35,15 +38,22 @@ public class LoginIntegrationTest {
     @ServiceConnection
     static MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:latest");
     
+    @BeforeAll
+    public static void start() {
+        mySQLContainer.start();
+    }
+    
+    
     @Test
     public void login_ValidUser_SuccessfulRedirect() throws Exception {
         userRepository.save(new User("user", "$2a$12$.wAmO3zkRizX3.ybKteEO.vAqoO5dT0hdsJZKQklKKGJ.FnlNzhTW", Role.ROLE_USER));
         mockMvc.perform(
                         formLogin("/process_login").user("user").password("user"))
-                        .andExpectAll(
-                                status().is3xxRedirection(),
-                                redirectedUrl("/"));
+                .andExpectAll(
+                        status().is3xxRedirection(),
+                        redirectedUrl("/"));
     }
+    
     @Test
     public void login_InvalidUser_SuccessfulRedirect() throws Exception {
         mockMvc.perform(
