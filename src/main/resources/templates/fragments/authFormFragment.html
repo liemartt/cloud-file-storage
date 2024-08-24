@@ -10,3 +10,4 @@
     <label for="password">Password</label>
     </div>
 <div class="alert alert-warning" th:if="${message}" th:text="${message}"></div>
+<div class="alert alert-warning" th:if="${param.error}">Invalid username or password</div>

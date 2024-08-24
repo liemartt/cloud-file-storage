@@ -9,6 +9,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -21,25 +22,30 @@ public class SecurityConfig {
     
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeRequests()
-                .requestMatchers("/login", "/signup")
-                .permitAll()
-                .requestMatchers("/123")
-                .authenticated()
-                .and().formLogin(loginPage -> loginPage.loginPage("/login").loginProcessingUrl("/process_login")
-                        .defaultSuccessUrl("/").failureUrl("/login"));
+        http
+                .csrf(AbstractHttpConfigurer::disable)//TODO implement csrf tokens
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/login", "/signup")
+                        .permitAll()
+                        .anyRequest()
+                        .authenticated())
+                .formLogin(loginPage -> loginPage
+                        .loginPage("/login")
+                        .loginProcessingUrl("/process_login")
+                        .defaultSuccessUrl("/")
+                        .failureUrl("/login?error"))
+                .logout(logout -> logout.logoutUrl("/logout"));
         
         return http.build();
     }
     
     @Bean
     public PasswordEncoder getPasswordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
     }
     
     @Bean
-    public AuthenticationProvider authenticationProvider(){
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(getPasswordEncoder());

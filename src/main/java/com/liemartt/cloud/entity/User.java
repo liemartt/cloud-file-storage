@@ -15,7 +15,7 @@ import lombok.Setter;
 @Table(name = "users", indexes = @Index(name = "username_index", columnList = "username"))
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     
     @Column(unique = true, nullable = false)

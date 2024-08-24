@@ -22,10 +22,4 @@ public class LogInController {
     public String getLoginPage(@ModelAttribute("userDto") UserDto userDto) {
         return "auth/login";
     }
-    
-    @PostMapping
-    public String processLogin(@ModelAttribute("userDto") UserDto userDto) {
-        
-        return "auth/login";
-    }
 }
