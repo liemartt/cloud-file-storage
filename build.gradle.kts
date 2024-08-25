@@ -41,6 +41,8 @@ dependencies {
     implementation ("org.flywaydb:flyway-mysql:10.17.1")
 //    implementation("org.springframework.session:spring-session-data-redis")
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
+    implementation("io.minio:minio:8.5.12")
+    implementation("org.springframework.boot:spring-boot-starter-test")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     //developmentOnly("org.springframework.boot:spring-boot-docker-compose")
@@ -52,6 +54,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:mysql")
+//    testImplementation ("org.springframework:spring-mock:2.0.8")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
