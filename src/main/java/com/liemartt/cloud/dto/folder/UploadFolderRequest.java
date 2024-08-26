@@ -6,5 +6,5 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 public class UploadFolderRequest {
     private String path;
-    private MultipartFile[] folder;
+    private MultipartFile[] files;
 }

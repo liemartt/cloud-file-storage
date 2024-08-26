@@ -1,11 +1,11 @@
-package com.liemartt.cloud.dto.file;
+package com.liemartt.cloud.dto.folder;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class DeleteFileRequest {
+public class CreateFolderRequest {
     private String path;
-    private String fileName;
+    private String folderName;
 }

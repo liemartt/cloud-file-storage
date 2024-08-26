@@ -1,7 +1,11 @@
 package com.liemartt.cloud.service;
 
+import com.liemartt.cloud.dto.file.DeleteFileRequest;
+import com.liemartt.cloud.dto.file.RenameFileRequest;
+import com.liemartt.cloud.dto.file.UploadFileRequest;
 import com.liemartt.cloud.exception.BadFileException;
 import io.minio.*;
+import io.minio.errors.*;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
@@ -9,48 +13,57 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 @Service
 @RequiredArgsConstructor
 public class FileService extends MinioService {
     private final MinioClient minioClient;
     
-    @SneakyThrows
-    public void uploadFile(String pathToFile, MultipartFile file) {
+    public void uploadFile(UploadFileRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        String path = request.getPath();
+        MultipartFile file = request.getFile();
+        
         try (InputStream inputStream = file.getInputStream()) {
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket(bucketName)
-                    .object(pathToFile + file.getOriginalFilename())
+                    .object(path + file.getOriginalFilename())
                     .stream(inputStream, file.getSize(), -1)
                     .contentType(file.getContentType())
                     .build());
         } catch (IOException e) {
-            throw new BadFileException(e.getMessage());
+            throw new BadFileException("Can`t save this file");
         }
     }
     
-    @SneakyThrows
-    public void deleteFile(String filePath) {
+    public void deleteFile(DeleteFileRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        String path = request.getPath();
+        String fileName = request.getFileName();
+        
         minioClient.removeObject(RemoveObjectArgs.builder()
                 .bucket(bucketName)
-                .object(filePath)
+                .object(path + fileName)
                 .build());
     }
     
     @SneakyThrows
-    public void renameFile(String pathToFile, String name, String newName) {
+    public void renameFile(RenameFileRequest request) {
+        String path = request.getPath();
+        String oldName = request.getOldName();
+        String newName = request.getNewName();
+        
         minioClient.copyObject(CopyObjectArgs.builder()
                 .bucket(bucketName)
-                .object(pathToFile + newName)
+                .object(path + newName)
                 .source(CopySource.builder()
                         .bucket(bucketName)
-                        .object(pathToFile + name)
+                        .object(path + oldName)
                         .build())
                 .build());
         
-        minioClient.removeObject(RemoveObjectArgs.builder()
-                .bucket(bucketName)
-                .object(pathToFile + name)
-                .build());
+        DeleteFileRequest deleteFileRequest = new DeleteFileRequest(path, oldName);
+        
+        deleteFile(deleteFileRequest);
     }
 }

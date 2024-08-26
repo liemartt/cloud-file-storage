@@ -1,22 +1,34 @@
 package com.liemartt.cloud.service;
 
+import com.liemartt.cloud.dto.file.DeleteFileRequest;
+import com.liemartt.cloud.dto.file.RenameFileRequest;
+import com.liemartt.cloud.dto.file.UploadFileRequest;
+import com.liemartt.cloud.dto.folder.CreateFolderRequest;
+import com.liemartt.cloud.dto.folder.DeleteFolderRequest;
+import com.liemartt.cloud.dto.folder.RenameFolderRequest;
+import com.liemartt.cloud.dto.folder.UploadFolderRequest;
 import io.minio.*;
+import io.minio.errors.*;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 @Service
 @RequiredArgsConstructor
 public class FolderService extends MinioService {
     private final MinioClient minioClient;
+    private final FileService fileService;
     
-    @SneakyThrows
-    public void createFolder(String path, String name) {
+    public void createFolder(CreateFolderRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        String path = request.getPath();
+        String name = request.getFolderName();
+        
         minioClient.putObject(
                 PutObjectArgs.builder()
                         .bucket(bucketName)
@@ -25,68 +37,57 @@ public class FolderService extends MinioService {
                         .build());
     }
     
-    @SneakyThrows
-    public void uploadFolder(String path, MultipartFile[] files) {
+    public void uploadFolder(UploadFolderRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        String path = request.getPath();
+        MultipartFile[] files = request.getFiles();
+        
         for (MultipartFile file : files) {
-            String fileName = file.getOriginalFilename();
-            
-            try (InputStream inputStream = file.getInputStream()) {
-                minioClient.putObject(
-                        PutObjectArgs.builder()
-                                .bucket(bucketName)
-                                .object(path + fileName)
-                                .stream(inputStream, file.getSize(), -1)
-                                .contentType(file.getContentType())
-                                .build());
-            }
+            UploadFileRequest uploadFileRequest = new UploadFileRequest(path, file);
+            fileService.uploadFile(uploadFileRequest);
         }
+        
     }
     
-    @SneakyThrows
-    public void renameFolder(String path, String folderName, String newFolderName) {
+    public void renameFolder(RenameFolderRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        String path = request.getPath();
+        String oldName = request.getOldName();
+        String newName = request.getNewName();
+        
         Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
                 .bucket(bucketName)
-                .prefix(path + folderName)
+                .prefix(path + oldName)
                 .recursive(true)
                 .build());
         
         for (Result<Item> result : results) {
             Item item = result.get();
-            String objectName = item.objectName();
-            String newObjectName = objectName.replaceFirst(folderName, newFolderName);
+            String oldObjectName = item.objectName();
+            String newObjectName = oldObjectName.replaceFirst(oldName, newName);
             
-            minioClient.copyObject(CopyObjectArgs.builder()
-                    .bucket(bucketName)
-                    .object(newObjectName)
-                    .source(CopySource.builder()
-                            .bucket(bucketName)
-                            .object(objectName)
-                            .build())
-                    .build());
+            RenameFileRequest renameFileRequest = new RenameFileRequest(path, oldObjectName, newObjectName);
+            fileService.renameFile(renameFileRequest);
             
-            minioClient.removeObject(RemoveObjectArgs.builder()
-                    .bucket(bucketName)
-                    .object(objectName)
-                    .build());
+            DeleteFileRequest deleteFileRequest = new DeleteFileRequest(path, oldObjectName);
+            fileService.deleteFile(deleteFileRequest);
         }
     }
     
-    @SneakyThrows
-    public void deleteFolder(String path, String folderName) {
+    public void deleteFolder(DeleteFolderRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        String path = request.getPath();
+        String folderName = request.getFolderName();
+        
         Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
                 .bucket(bucketName)
                 .prefix(path + folderName)
                 .recursive(true)
-                .build());
+                .build()); //todo move to base method
         
         for (Result<Item> result : results) {
             Item item = result.get();
             String objectName = item.objectName();
             
-            minioClient.removeObject(RemoveObjectArgs.builder()
-                    .bucket(bucketName)
-                    .object(objectName)
-                    .build());
+            DeleteFileRequest deleteFileRequest = new DeleteFileRequest(path, objectName);
+            fileService.deleteFile(deleteFileRequest);
         }
     }
 }
