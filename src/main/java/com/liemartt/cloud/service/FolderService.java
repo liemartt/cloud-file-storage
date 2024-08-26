@@ -18,6 +18,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -53,14 +55,9 @@ public class FolderService extends MinioService {
         String oldName = request.getOldName();
         String newName = request.getNewName();
         
-        Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
-                .bucket(bucketName)
-                .prefix(path + oldName)
-                .recursive(true)
-                .build());
+        List<Item> items = getFiles(path + oldName);
         
-        for (Result<Item> result : results) {
-            Item item = result.get();
+        for (Item item : items) {
             String oldObjectName = item.objectName();
             String newObjectName = oldObjectName.replaceFirst(oldName, newName);
             
@@ -76,18 +73,27 @@ public class FolderService extends MinioService {
         String path = request.getPath();
         String folderName = request.getFolderName();
         
-        Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
-                .bucket(bucketName)
-                .prefix(path + folderName)
-                .recursive(true)
-                .build()); //todo move to base method
+        List<Item> items = getFiles(path + folderName);
         
-        for (Result<Item> result : results) {
-            Item item = result.get();
+        for (Item item : items) {
             String objectName = item.objectName();
             
             DeleteFileRequest deleteFileRequest = new DeleteFileRequest(path, objectName);
             fileService.deleteFile(deleteFileRequest);
         }
+    }
+    
+    public List<Item> getFiles(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        List<Item> items = new ArrayList<>();
+        
+        Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
+                .bucket(bucketName)
+                .prefix(path)
+                .recursive(true)
+                .build());
+        for (Result<Item> result : results) {
+            items.add(result.get());
+        }
+        return items;
     }
 }
