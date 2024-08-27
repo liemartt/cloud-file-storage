@@ -20,6 +20,14 @@
                 </div>
                 <button type="submit" class="btn btn-primary w-100">Upload</button>
             </form>
+            <div th:each="object: ${objects}">
+                <div class = "mb-1">
+                    <p>Name: <span th:text="${object.getName()}"></span></p>
+                    <p>Path with object name: <span th:text="${object.getPathWithObjectName()}"></span></p>
+                    <p>Path without object name: <span th:text="${object.getPathWithoutObjectName()}"></span></p>
+                    <p>IsDir: <span th:text="${object.isDir()}"></span></p>
+                </div>
+            </div>
         </div>
     </div>
 </div>

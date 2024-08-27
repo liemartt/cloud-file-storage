@@ -1,5 +1,6 @@
 package com.liemartt.cloud.service;
 
+import com.liemartt.cloud.dto.ObjectResponseDto;
 import com.liemartt.cloud.dto.file.DeleteFileRequest;
 import com.liemartt.cloud.dto.file.RenameFileRequest;
 import com.liemartt.cloud.dto.file.UploadFileRequest;
@@ -7,6 +8,7 @@ import com.liemartt.cloud.dto.folder.CreateFolderRequest;
 import com.liemartt.cloud.dto.folder.DeleteFolderRequest;
 import com.liemartt.cloud.dto.folder.RenameFolderRequest;
 import com.liemartt.cloud.dto.folder.UploadFolderRequest;
+import com.liemartt.cloud.util.PathUtil;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.Item;
@@ -55,7 +57,7 @@ public class FolderService extends MinioService {
         String oldName = request.getOldName();
         String newName = request.getNewName();
         
-        List<Item> items = getFiles(path + oldName);
+        List<Item> items = getFiles(path + oldName, true);
         
         for (Item item : items) {
             String oldObjectName = item.objectName();
@@ -73,7 +75,7 @@ public class FolderService extends MinioService {
         String path = request.getPath();
         String folderName = request.getFolderName();
         
-        List<Item> items = getFiles(path + folderName);
+        List<Item> items = getFiles(path + folderName, true);
         
         for (Item item : items) {
             String objectName = item.objectName();
@@ -83,17 +85,25 @@ public class FolderService extends MinioService {
         }
     }
     
-    public List<Item> getFiles(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public List<Item> getFiles(String path, boolean recursive) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         List<Item> items = new ArrayList<>();
         
         Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
                 .bucket(bucketName)
                 .prefix(path)
-                .recursive(true)
+                .recursive(recursive)
                 .build());
         for (Result<Item> result : results) {
             items.add(result.get());
         }
         return items;
+    }
+    
+    public List<ObjectResponseDto> getUserObjects(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        List<Item> items = getFiles(path, false);
+        return items.stream()
+                .map(ObjectResponseDto::new)
+                .filter(object -> !object.getName().isBlank())
+                .toList();
     }
 }
