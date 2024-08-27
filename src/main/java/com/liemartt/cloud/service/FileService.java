@@ -23,13 +23,12 @@ public class FileService extends MinioService {
     private final MinioClient minioClient;
     
     public InputStream downloadFile(DownloadFileRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        String path = request.getPath();
         String fileName = request.getFileName();
         
         return minioClient.getObject(
                 GetObjectArgs.builder()
                         .bucket(bucketName)
-                        .object(path + fileName)
+                        .object(fileName)
                         .build()
         );
     }
@@ -51,31 +50,29 @@ public class FileService extends MinioService {
     }
     
     public void deleteFile(DeleteFileRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        String path = request.getPath();
         String fileName = request.getFileName();
         
         minioClient.removeObject(RemoveObjectArgs.builder()
                 .bucket(bucketName)
-                .object(path + fileName)
+                .object(fileName)
                 .build());
     }
     
     @SneakyThrows
     public void renameFile(RenameFileRequest request) {
-        String path = request.getPath();
         String oldName = request.getOldName();
         String newName = request.getNewName();
         
         minioClient.copyObject(CopyObjectArgs.builder()
                 .bucket(bucketName)
-                .object(path + newName)
+                .object(newName)
                 .source(CopySource.builder()
                         .bucket(bucketName)
-                        .object(path + oldName)
+                        .object(oldName)
                         .build())
                 .build());
         
-        DeleteFileRequest deleteFileRequest = new DeleteFileRequest(path, oldName);
+        DeleteFileRequest deleteFileRequest = new DeleteFileRequest(oldName);
         
         deleteFile(deleteFileRequest);
     }

@@ -30,13 +30,12 @@ public class FolderService extends MinioService {
     private final FileService fileService;
     
     public void createFolder(CreateFolderRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        String path = request.getPath();
         String name = request.getFolderName();
         
         minioClient.putObject(
                 PutObjectArgs.builder()
                         .bucket(bucketName)
-                        .object(path + name + "/")
+                        .object(name)
                         .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
                         .build());
     }
@@ -53,34 +52,32 @@ public class FolderService extends MinioService {
     }
     
     public void renameFolder(RenameFolderRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        String path = request.getPath();
         String oldName = request.getOldName();
         String newName = request.getNewName();
         
-        List<Item> items = getFiles(path + oldName, true);
+        List<Item> items = getFiles(oldName, true);
         
         for (Item item : items) {
             String oldObjectName = item.objectName();
             String newObjectName = oldObjectName.replaceFirst(oldName, newName);
             
-            RenameFileRequest renameFileRequest = new RenameFileRequest(path, oldObjectName, newObjectName);
+            RenameFileRequest renameFileRequest = new RenameFileRequest(oldObjectName, newObjectName);
             fileService.renameFile(renameFileRequest);
             
-            DeleteFileRequest deleteFileRequest = new DeleteFileRequest(path, oldObjectName);
+            DeleteFileRequest deleteFileRequest = new DeleteFileRequest(oldObjectName);
             fileService.deleteFile(deleteFileRequest);
         }
     }
     
     public void deleteFolder(DeleteFolderRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        String path = request.getPath();
         String folderName = request.getFolderName();
         
-        List<Item> items = getFiles(path + folderName, true);
+        List<Item> items = getFiles(folderName, true);
         
         for (Item item : items) {
             String objectName = item.objectName();
             
-            DeleteFileRequest deleteFileRequest = new DeleteFileRequest(path, objectName);
+            DeleteFileRequest deleteFileRequest = new DeleteFileRequest(objectName);
             fileService.deleteFile(deleteFileRequest);
         }
     }

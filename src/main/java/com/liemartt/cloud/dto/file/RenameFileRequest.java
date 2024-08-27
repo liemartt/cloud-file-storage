@@ -7,7 +7,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class RenameFileRequest {
-    private String path;
     @NotNull(message = "Name must not be empty")
     private String oldName;
     @NotNull(message = "Name must not be empty")
