@@ -15,7 +15,7 @@ import java.security.NoSuchAlgorithmException;
 
 @Configuration
 public class MinIOConfig {
-    @Value("minio.bucket.name")
+    @Value("${minio.bucket.name}")
     private String bucketName;
     
     @Bean

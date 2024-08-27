@@ -1,6 +1,7 @@
 package com.liemartt.cloud.service;
 
 import com.liemartt.cloud.dto.file.DeleteFileRequest;
+import com.liemartt.cloud.dto.file.DownloadFileRequest;
 import com.liemartt.cloud.dto.file.RenameFileRequest;
 import com.liemartt.cloud.dto.file.UploadFileRequest;
 import com.liemartt.cloud.exception.BadFileException;
@@ -20,6 +21,18 @@ import java.security.NoSuchAlgorithmException;
 @RequiredArgsConstructor
 public class FileService extends MinioService {
     private final MinioClient minioClient;
+    
+    public InputStream downloadFile(DownloadFileRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        String path = request.getPath();
+        String fileName = request.getFileName();
+        
+        return minioClient.getObject(
+                GetObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(path + fileName)
+                        .build()
+        );
+    }
     
     public void uploadFile(UploadFileRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         String path = request.getPath();

@@ -1,6 +1,10 @@
 package com.liemartt.cloud.controller;
 
 import com.liemartt.cloud.dto.CustomUserDetails;
+import com.liemartt.cloud.dto.file.UploadFileRequest;
+import com.liemartt.cloud.service.FileService;
+import com.liemartt.cloud.service.FolderService;
+import com.liemartt.cloud.util.PathUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,27 +20,22 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/")
 @RequiredArgsConstructor
 public class HomeController {
-//    private final MinIOStorageService minIOStorageService;
+    private final FileService fileService;
+    private final FolderService folderService;
     
     
     @GetMapping
-    public String getHomePage(@AuthenticationPrincipal CustomUserDetails customUserDetails, Model model) {
+    public String getHomePage(@AuthenticationPrincipal CustomUserDetails customUserDetails,
+                              @RequestParam(required = false, defaultValue = "") String path,
+                              Model model) {
+        //todo valid path
+        
         model.addAttribute("username", customUserDetails.getUsername());
+        model.addAttribute("userPath", PathUtil.getUserPath(customUserDetails.getId(), path));
+        
+        
+        model.addAttribute("uploadFileRequest", new UploadFileRequest());
         return "index";
     }
     
-    @PostMapping
-    public String uploadFile(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestParam(required = false) String path) {
-        if (path == null) {
-            path = "/";
-        }else path=path+"/";
-        String pathToFile = "user-" + customUserDetails.getId().toString() + "-files" + path;
-        
-        String content = "This is a file content";
-        MultipartFile multipartFile = new MockMultipartFile("file", "testfile.txt", "text/plain", content.getBytes());
-        
-//        minIOStorageService.renameFolder(pathToFile, "my-folder/", "newFolderName/");
-        
-        return "index";
-    }
 }
