@@ -1,39 +1,138 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <title>File Upload</title>
-    <!-- Bootstrap 5 CSS -->
+    <title>Cloud storage</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
 </head>
-<body>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h1 class="text-center">Upload a File</h1>
-
-            <form method="post" action="/files" enctype="multipart/form-data" th:object="${uploadFileRequest}">
-                <div class="mb-3">
-                    <label for="file" class="form-label">Choose a file</label>
-                    <input class="form-control" type="file" id="file" name="file" th:field="*{file}" required>
-                    <input type="hidden" name="path"  th:name="path" th:value="${userPath}">
-                </div>
-                <button type="submit" class="btn btn-primary w-100">Upload</button>
-            </form>
-            <div th:each="object: ${objects}">
-                <div class = "mb-1">
-                    <p>Name: <span th:text="${object.getName()}"></span></p>
-                    <p>Path with object name: <span th:text="${object.getPathWithObjectName()}"></span></p>
-                    <p>Path without object name: <span th:text="${object.getPathWithoutObjectName()}"></span></p>
-                    <p>IsDir: <span th:text="${object.isDir()}"></span></p>
-                </div>
+<header class="fixed-top bg-dark text-white shadow-sm">
+    <div class="container-fluid">
+        <div class="row mt-2 justify-content-between">
+            <div class="d-flex col-auto justify-content-start">
+                <h1>Cloud file storage</h1>
+            </div>
+            <div th:if="${username==null}" class="col-auto d-flex align-items-center justify-content-start">
+                <button class="btn btn-primary me-2">Log in</button>
+                <button class="btn btn-primary">Sign up</button>
+            </div>
+            <div th:if="${username!=null}" class="col-2 d-flex align-items-center justify-content-end">
+                <h4 th:text="${username}">liemartt</h4>
+                <button class="btn btn-primary ms-3">Log out</button>
             </div>
         </div>
     </div>
+</header>
+
+<body class="mt-5">
+<div  class="d-flex container-fluid row justify-content-center  mt-5">
+    <div th:if="${username==null}" class="d-flex flex-column justify-content-center">
+        <p class="h3">Welcome to Cloud File Storage</p>
+        <p class="h3 mt-4">Securely store, access, and share your files
+            from anywhere</p>
+    </div>
+    <div th:if="${username!=null}" class="container-fluid h-100 pt-2">
+        <!-- Search input -->
+        <div class="d-flex justify-content-center mt-5 mb-3">
+            <div class="input-group mb-3 w-50">
+                <input type="text" class="form-control border border-secondary text-secondary"
+                       placeholder="Search files">
+                <button class="btn btn-outline-secondary" type="button" id="button-addon2"><i
+                        class="bi bi-search"></i></button>
+            </div>
+        </div>
+
+        <!-- Main block -->
+        <main class="container-fluid mt-3">
+            <nav aria-label="breadcrumb" class="mt-2">
+                <ol class="breadcrumb" th:each="crumb:${currentBreadcrumbs}">
+                    <li class="breadcrumb-item"><a th:href="${crumb.getLink()}" th:text="crumb.getName()"></a></li>
+                </ol>
+            </nav>
+
+            <div class="d-flex justify-content-start pt-2">
+                <button class="btn btn-primary">Upload file</button>
+                <button class="btn btn-primary ms-2">Upload folder</button>
+            </div>
+
+
+            <div class="d-flex row  justify-content-center mt-3">
+                <!-- Folders block -->
+                <div class="col-md-6">
+                    <div class="container rounded border border-primary p-3">
+                        <h5>Folders</h5>
+                        <ul class="list-group">
+                            <div th:each="folder:${folders}"
+                                 class="list-group-item d-flex justify-content-between align-items-center mb-2">
+                                <div th:replace="fragments/folder-fragment.html"></div>
+<!--                                <span th:text="${folder.name}"><i class="bi bi-folder"></i> Folder 1</span>-->
+<!--                                <div>-->
+<!--                                    <span th:text="${folder.size}" class="text-muted">13.2mb</span>-->
+
+<!--                                    <button class="btn btn-sm btn-outline-secondary me-2 ms-2" data-bs-toggle="dropdown"-->
+<!--                                            aria-expanded="false">-->
+<!--                                        <i class="bi bi-three-dots"></i>-->
+<!--                                    </button>-->
+<!--                                    <ul class="dropdown-menu">-->
+<!--                                        <li><a class="dropdown-item" href="#"><i class="bi bi-pencil"></i> Rename</a>-->
+<!--                                        </li>-->
+<!--                                        <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash"></i>-->
+<!--                                            Delete</a>-->
+<!--                                        </li>-->
+<!--                                    </ul>-->
+<!--                                </div>-->
+                            </div>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Files block -->
+                <div class="col-md-6">
+                    <div class="container border border-primary rounded p-3">
+                        <h5>Files</h5>
+                        <ul class="list-group">
+                            <div th:each="file:${files}"
+                                 class="list-group-item d-flex justify-content-between align-items-center">
+                                <div th:replace="fragments/file-fragment.html"></div>
+<!--                                <span th:text="${file.name}"><i class="bi bi-file-earmark"></i> file 1</span>-->
+<!--                                <div>-->
+<!--                                    <span th:text="${file.size}" class="text-muted">13.2mb</span>-->
+
+<!--                                    <button class="btn btn-sm btn-outline-secondary me-2 ms-2" data-bs-toggle="dropdown"-->
+<!--                                            aria-expanded="false">-->
+<!--                                        <i class="bi bi-three-dots"></i>-->
+<!--                                    </button>-->
+<!--                                    <ul class="dropdown-menu">-->
+<!--                                        <li><a class="dropdown-item" href="#"><i class="bi bi-pencil"></i> Rename</a>-->
+<!--                                        </li>-->
+<!--                                        <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash"></i>-->
+<!--                                            Delete</a>-->
+<!--                                        </li>-->
+<!--                                    </ul>-->
+<!--                                </div>-->
+                            </div>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 </div>
 
-<!-- Bootstrap 5 JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
+
 </html>
+
+<!-- <form method="post" action="/files" enctype="multipart/form-data" th:object="${uploadFileRequest}">
+    <div class="mb-3">
+        <label for="file" class="form-label">Choose a file</label>
+        <input class="form-control" type="file" id="file" name="file" th:field="*{file}" required>
+        <input type="hidden" name="path"  th:name="path" th:value="${userPath}">
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Upload</button>
+</form> -->

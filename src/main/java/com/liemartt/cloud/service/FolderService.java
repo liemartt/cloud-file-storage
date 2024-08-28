@@ -103,4 +103,21 @@ public class FolderService extends MinioService {
                 .filter(object -> !object.getName().isBlank())
                 .toList();
     }
+    
+    public List<ObjectResponseDto> getUserFolders(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        List<Item> items = getFiles(path, false);
+        return items.stream()
+                .map(ObjectResponseDto::new)
+                .filter(object -> !object.getName().isBlank() && object.isDir())
+                .toList();
+    }
+    
+    public List<ObjectResponseDto> getUserFiles(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        List<Item> items = getFiles(path, false);
+        return items.stream()
+                .map(ObjectResponseDto::new)
+                .filter(object -> !object.getName().isBlank() && !object.isDir())
+                .toList();
+    }
+    
 }

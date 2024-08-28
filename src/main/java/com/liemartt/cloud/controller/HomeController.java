@@ -39,10 +39,12 @@ public class HomeController {
         //todo valid path
         
         String userPath = PathUtil.getUserPath(customUserDetails.getId(), path);
-        List<ObjectResponseDto> userObjects = folderService.getUserObjects(userPath);
-
+        List<ObjectResponseDto> userFolders = folderService.getUserFolders(userPath);
+        List<ObjectResponseDto> userFiles = folderService.getUserFiles(userPath);
+        
         model.addAttribute("userPath", userPath);
-        model.addAttribute("objects", userObjects);
+        model.addAttribute("files", userFiles);
+        model.addAttribute("folders", userFolders);
         model.addAttribute("username", customUserDetails.getUsername());
         
         model.addAttribute("uploadFileRequest", new UploadFileRequest());
