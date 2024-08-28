@@ -1,23 +1,21 @@
 package com.liemartt.cloud.controller;
 
+import com.liemartt.cloud.dto.BreadcrumbLink;
 import com.liemartt.cloud.dto.CustomUserDetails;
-import com.liemartt.cloud.dto.ObjectResponseDto;
+import com.liemartt.cloud.dto.FileResponse;
+import com.liemartt.cloud.dto.FolderResponse;
 import com.liemartt.cloud.dto.file.UploadFileRequest;
 import com.liemartt.cloud.service.FileService;
 import com.liemartt.cloud.service.FolderService;
 import com.liemartt.cloud.util.PathUtil;
 import io.minio.errors.*;
-import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -39,12 +37,16 @@ public class HomeController {
         //todo valid path
         
         String userPath = PathUtil.getUserPath(customUserDetails.getId(), path);
-        List<ObjectResponseDto> userFolders = folderService.getUserFolders(userPath);
-        List<ObjectResponseDto> userFiles = folderService.getUserFiles(userPath);
+        
+        List<FolderResponse> userFolders = folderService.getUserFolders(userPath);
+        List<FileResponse> userFiles = folderService.getUserFiles(userPath);
+        List<BreadcrumbLink> breadcrumbLinks = folderService.getBreadcrumbLinks(path);
+        
         
         model.addAttribute("userPath", userPath);
         model.addAttribute("files", userFiles);
         model.addAttribute("folders", userFolders);
+        model.addAttribute("breadcrumbLinks", breadcrumbLinks);
         model.addAttribute("username", customUserDetails.getUsername());
         
         model.addAttribute("uploadFileRequest", new UploadFileRequest());

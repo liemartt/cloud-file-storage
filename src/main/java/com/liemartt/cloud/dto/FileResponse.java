@@ -3,10 +3,8 @@ package com.liemartt.cloud.dto;
 import io.minio.messages.Item;
 import lombok.Data;
 
-import java.math.BigDecimal;
-
 @Data
-public class ObjectResponseDto {
+public class FileResponse {
     private String name;
     private String size;
     private String pathWithObjectName;
@@ -14,7 +12,7 @@ public class ObjectResponseDto {
     private boolean isDir;
     
     
-    public ObjectResponseDto(Item item) {
+    public FileResponse(Item item) {
         name = getObjectName(item);
         size = getItemSize(item.size());
         pathWithObjectName = item.objectName();

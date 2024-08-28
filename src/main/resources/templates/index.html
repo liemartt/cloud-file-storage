@@ -28,100 +28,162 @@
 </header>
 
 <body class="mt-5">
-<div  class="d-flex container-fluid row justify-content-center  mt-5">
-    <div th:if="${username==null}" class="d-flex flex-column justify-content-center">
-        <p class="h3">Welcome to Cloud File Storage</p>
-        <p class="h3 mt-4">Securely store, access, and share your files
-            from anywhere</p>
-    </div>
-    <div th:if="${username!=null}" class="container-fluid h-100 pt-2">
-        <!-- Search input -->
-        <div class="d-flex justify-content-center mt-5 mb-3">
-            <div class="input-group mb-3 w-50">
-                <input type="text" class="form-control border border-secondary text-secondary"
-                       placeholder="Search files">
-                <button class="btn btn-outline-secondary" type="button" id="button-addon2"><i
-                        class="bi bi-search"></i></button>
-            </div>
+    <div class="d-flex container-fluid row justify-content-center  mt-5">
+        <div th:if="${username==null}" class="d-flex flex-column justify-content-center">
+            <p class="h3">Welcome to Cloud File Storage</p>
+            <p class="h3 mt-4">Securely store, access, and share your files
+                from anywhere</p>
         </div>
-
-        <!-- Main block -->
-        <main class="container-fluid mt-3">
-            <nav aria-label="breadcrumb" class="mt-2">
-                <ol class="breadcrumb" th:each="crumb:${currentBreadcrumbs}">
-                    <li class="breadcrumb-item"><a th:href="${crumb.getLink()}" th:text="crumb.getName()"></a></li>
-                </ol>
-            </nav>
-
-            <div class="d-flex justify-content-start pt-2">
-                <button class="btn btn-primary">Upload file</button>
-                <button class="btn btn-primary ms-2">Upload folder</button>
+        <div th:if="${username!=null}" class="container-fluid h-100 pt-2">
+            <!-- Search input -->
+            <div class="d-flex justify-content-center mt-5 mb-3">
+                <div class="input-group mb-3 w-50">
+                    <input type="text" class="form-control border border-secondary text-secondary"
+                        placeholder="Search files">
+                    <button class="btn btn-outline-secondary" type="button" id="button-addon2"><i
+                            class="bi bi-search"></i></button>
+                </div>
             </div>
 
+            <!-- Main block -->
+            <main class="container-fluid mt-3">
+                <nav aria-label="breadcrumb" class="mt-2">
+                    <ol class="breadcrumb">
+                        <li th:each="crumb : ${breadcrumbLinks}" class="breadcrumb-item">
+                            <a class="text-decoration-none" th:href="${'/?path=' + crumb.getPath()}"
+                                th:text="${crumb.getName()}">QWE</a>
+                        </li>
+                    </ol>
+                </nav>
 
-            <div class="d-flex row  justify-content-center mt-3">
-                <!-- Folders block -->
-                <div class="col-md-6">
-                    <div class="container rounded border border-primary p-3">
-                        <h5>Folders</h5>
-                        <ul class="list-group">
-                            <div th:each="folder:${folders}"
-                                 class="list-group-item d-flex justify-content-between align-items-center mb-2">
-                                <div th:replace="fragments/folder-fragment.html"></div>
-<!--                                <span th:text="${folder.name}"><i class="bi bi-folder"></i> Folder 1</span>-->
-<!--                                <div>-->
-<!--                                    <span th:text="${folder.size}" class="text-muted">13.2mb</span>-->
 
-<!--                                    <button class="btn btn-sm btn-outline-secondary me-2 ms-2" data-bs-toggle="dropdown"-->
-<!--                                            aria-expanded="false">-->
-<!--                                        <i class="bi bi-three-dots"></i>-->
-<!--                                    </button>-->
-<!--                                    <ul class="dropdown-menu">-->
-<!--                                        <li><a class="dropdown-item" href="#"><i class="bi bi-pencil"></i> Rename</a>-->
-<!--                                        </li>-->
-<!--                                        <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash"></i>-->
-<!--                                            Delete</a>-->
-<!--                                        </li>-->
-<!--                                    </ul>-->
-<!--                                </div>-->
-                            </div>
-                        </ul>
+                <div class="d-flex justify-content-start pt-2">
+                    <form method="post" action="/files" enctype="multipart/form-data">
+                        <input type="file" name="file" id="fileInput" style="display:none;"
+                            onchange="this.form.submit()">
+                        <input type="hidden" name="path" th:value="${userPath}">
+                        <button type="button" class="btn btn-primary"
+                            onclick="document.getElementById('fileInput').click();">Upload File</button>
+                    </form>
+
+                    <form method="post" action="/folders" enctype="multipart/form-data" class="ms-2">
+                        <input type="file" name="folder" id="folderInput" webkitdirectory style="display:none;"
+                            onchange="this.form.submit()">
+                        <input type="hidden" name="path" th:value="${userPath}">
+                        <button type="button" class="btn btn-primary"
+                            onclick="document.getElementById('folderInput').click();">Upload Folder</button>
+                    </form>
+                </div>
+
+
+
+
+                <div class="d-flex row justify-content-center mt-3">
+                    <!-- Folders block -->
+                    <div class="col-md-6">
+                        <div id="folders-dropzone" class="container rounded border border-primary p-3 dropzone">
+                            <h5>Folders</h5>
+                            <ul class="list-group">
+                                <div th:each="folder:${folders}"
+                                    class="list-group-item d-flex justify-content-between align-items-center mb-2">
+                                    <div th:replace="~{fragments/folder-fragment.html}"></div>
+                                </div>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Files block -->
+                    <div class="col-md-6">
+                        <div id="files-dropzone" class="container border border-primary rounded p-3 dropzone">
+                            <h5>Files</h5>
+                            <ul class="list-group">
+                                <div th:each="file:${files}"
+                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div th:replace="~{fragments/file-fragment.html}"></div>
+                                </div>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Files block -->
-                <div class="col-md-6">
-                    <div class="container border border-primary rounded p-3">
-                        <h5>Files</h5>
-                        <ul class="list-group">
-                            <div th:each="file:${files}"
-                                 class="list-group-item d-flex justify-content-between align-items-center">
-                                <div th:replace="fragments/file-fragment.html"></div>
-<!--                                <span th:text="${file.name}"><i class="bi bi-file-earmark"></i> file 1</span>-->
-<!--                                <div>-->
-<!--                                    <span th:text="${file.size}" class="text-muted">13.2mb</span>-->
-
-<!--                                    <button class="btn btn-sm btn-outline-secondary me-2 ms-2" data-bs-toggle="dropdown"-->
-<!--                                            aria-expanded="false">-->
-<!--                                        <i class="bi bi-three-dots"></i>-->
-<!--                                    </button>-->
-<!--                                    <ul class="dropdown-menu">-->
-<!--                                        <li><a class="dropdown-item" href="#"><i class="bi bi-pencil"></i> Rename</a>-->
-<!--                                        </li>-->
-<!--                                        <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash"></i>-->
-<!--                                            Delete</a>-->
-<!--                                        </li>-->
-<!--                                    </ul>-->
-<!--                                </div>-->
-                            </div>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
-</div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const foldersDropzone = document.getElementById('folders-dropzone');
+            const filesDropzone = document.getElementById('files-dropzone');
+
+            // Предотвращаем поведение по умолчанию для событий dragover и drop
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // Подсветка зоны во время перетаскивания файлов
+            function highlight(e) {
+                e.target.classList.add('bg-light');
+            }
+
+            // Убираем подсветку
+            function unhighlight(e) {
+                e.target.classList.remove('bg-light');
+            }
+
+            function handleDrop(e) {
+                let dt = e.dataTransfer;
+                let files = dt.files;
+
+                handleFiles(files, e.target.id);
+                unhighlight(e);  // Убираем подсветку после сброса
+            }
+
+            // Обработка файлов и их загрузка
+            function handleFiles(files, dropzoneId) {
+                [...files].forEach(file => {
+                    uploadFile(file, dropzoneId);
+                });
+            }
+
+            // Функция загрузки файла на сервер
+            function uploadFile(file, dropzoneId) {
+                let url = '/upload';  // Укажите здесь URL вашего эндпоинта для загрузки
+                let formData = new FormData();
+                formData.append('file', file);
+
+                // Можно отправить дополнительную информацию о том, куда загружать файл
+                formData.append('dropzone', dropzoneId);
+
+                fetch(url, {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);  // Обработка ответа сервера (например, обновление UI)
+                        alert('File uploaded successfully!');
+                    })
+                    .catch(error => {
+                        console.error('Error uploading file:', error);
+                    });
+            }
+
+            // Добавляем обработчики событий для обеих зон
+            [foldersDropzone, filesDropzone].forEach(dropzone => {
+                dropzone.addEventListener('dragenter', preventDefaults, false);
+                dropzone.addEventListener('dragleave', preventDefaults, false);
+                dropzone.addEventListener('dragover', preventDefaults, false);
+                dropzone.addEventListener('drop', preventDefaults, false);
+
+                dropzone.addEventListener('dragenter', highlight, false);
+                dropzone.addEventListener('dragleave', unhighlight, false);
+                dropzone.addEventListener('dragover', highlight, false);
+                dropzone.addEventListener('drop', handleDrop, false);
+            });
+        });
+
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

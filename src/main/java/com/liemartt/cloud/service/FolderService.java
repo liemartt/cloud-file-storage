@@ -1,6 +1,8 @@
 package com.liemartt.cloud.service;
 
-import com.liemartt.cloud.dto.ObjectResponseDto;
+import com.liemartt.cloud.dto.BreadcrumbLink;
+import com.liemartt.cloud.dto.FileResponse;
+import com.liemartt.cloud.dto.FolderResponse;
 import com.liemartt.cloud.dto.file.DeleteFileRequest;
 import com.liemartt.cloud.dto.file.RenameFileRequest;
 import com.liemartt.cloud.dto.file.UploadFileRequest;
@@ -8,7 +10,6 @@ import com.liemartt.cloud.dto.folder.CreateFolderRequest;
 import com.liemartt.cloud.dto.folder.DeleteFolderRequest;
 import com.liemartt.cloud.dto.folder.RenameFolderRequest;
 import com.liemartt.cloud.dto.folder.UploadFolderRequest;
-import com.liemartt.cloud.util.PathUtil;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.Item;
@@ -21,6 +22,7 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -42,7 +44,8 @@ public class FolderService extends MinioService {
     
     public void uploadFolder(UploadFolderRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         String path = request.getPath();
-        MultipartFile[] files = request.getFiles();
+        MultipartFile[] files = request.getFolder();
+        System.out.println(Arrays.toString(files));
         
         for (MultipartFile file : files) {
             UploadFileRequest uploadFileRequest = new UploadFileRequest(path, file);
@@ -96,28 +99,47 @@ public class FolderService extends MinioService {
         return items;
     }
     
-    public List<ObjectResponseDto> getUserObjects(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public List<FileResponse> getUserObjects(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         List<Item> items = getFiles(path, false);
         return items.stream()
-                .map(ObjectResponseDto::new)
+                .map(FileResponse::new)
                 .filter(object -> !object.getName().isBlank())
                 .toList();
     }
     
-    public List<ObjectResponseDto> getUserFolders(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public List<FolderResponse> getUserFolders(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         List<Item> items = getFiles(path, false);
+        
         return items.stream()
-                .map(ObjectResponseDto::new)
-                .filter(object -> !object.getName().isBlank() && object.isDir())
+                .filter(Item::isDir)
+                .map(FolderResponse::new)
                 .toList();
     }
     
-    public List<ObjectResponseDto> getUserFiles(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public List<FileResponse> getUserFiles(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         List<Item> items = getFiles(path, false);
         return items.stream()
-                .map(ObjectResponseDto::new)
+                .map(FileResponse::new)
                 .filter(object -> !object.getName().isBlank() && !object.isDir())
                 .toList();
+    }
+    
+    public List<BreadcrumbLink> getBreadcrumbLinks(String path) {
+        List<BreadcrumbLink> links = new ArrayList<>();
+        links.add(new BreadcrumbLink("Home", ""));
+        
+        if (path.isBlank()) {
+            return links;
+        } else {
+            StringBuilder sb = new StringBuilder();
+            String[] folders = path.split("/");
+            for (String folder : folders) {
+                sb.append(folder);
+                links.add(new BreadcrumbLink(folder, sb.toString()));
+                sb.append("/");
+            }
+        }
+        return links;
     }
     
 }
