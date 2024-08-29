@@ -45,6 +45,7 @@ public class FolderService extends MinioService {
     public void uploadFolder(UploadFolderRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         String path = request.getPath();
         MultipartFile[] files = request.getFolder();
+        System.out.println(path);
         System.out.println(Arrays.toString(files));
         
         for (MultipartFile file : files) {

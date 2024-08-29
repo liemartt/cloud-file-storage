@@ -10,6 +10,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+
 @RestController
 @RequestMapping("/folders")
 @RequiredArgsConstructor
@@ -43,6 +46,7 @@ public class FolderController {
         if (bindingResult.hasErrors()) {
             throw new BadFileException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
         }
+        System.out.println(Arrays.toString(request.getFolder()));
         
         try {
             folderService.uploadFolder(request);

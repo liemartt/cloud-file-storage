@@ -7,6 +7,20 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+
+    <style>
+        .drop-area {
+            position: relative;
+            transition: background-color 0.3s;
+        }
+
+        .drop-area.dragover {
+            background-color: #d1e7fd;
+            /* Светло-синий цвет при наведении */
+            border-color: #007bff;
+        }
+    </style>
 </head>
 
 <header class="fixed-top bg-dark text-white shadow-sm">
@@ -56,7 +70,7 @@
                     </ol>
                 </nav>
 
-
+                <!-- Upload buttons -->
                 <div class="d-flex justify-content-start pt-2">
                     <form method="post" action="/files" enctype="multipart/form-data">
                         <input type="file" name="file" id="fileInput" style="display:none;"
@@ -80,121 +94,182 @@
 
                 <div class="d-flex row justify-content-center mt-3">
                     <!-- Folders block -->
-                    <div class="col-md-6">
-                        <div id="folders-dropzone" class="container rounded border border-primary p-3 dropzone">
+                    <div th:class="${files.isEmpty()?'col-md-12':'col-md-6'}" th:if="${!folders.isEmpty()}">
+                        <form id="drop-area-folder" action="/folders" method="post"
+                            class=" container rounded border border-primary p-3 drop-area" enctype=multipart/form-data>
                             <h5>Folders</h5>
-                            <ul class="list-group">
+                            <input type="hidden" name="path" th:value="${userPath}">
+                            <input type="file" name="folder" id="folderElem" webkitdirectory directory hidden>
+
+                            <ul class="list-group mb-2" id="folders-list">
                                 <div th:each="folder:${folders}"
-                                    class="list-group-item d-flex justify-content-between align-items-center mb-2">
+                                    class="list-group-item d-flex justify-content-between align-items-center mb-1 p-2 rounded"
+                                    style="background-color: #bdcad6;">
                                     <div th:replace="~{fragments/folder-fragment.html}"></div>
                                 </div>
+                                <p class="text-center mt-4"><b>Drag and drop folder here</b></p>
+
                             </ul>
-                        </div>
+                        </form>
                     </div>
 
                     <!-- Files block -->
-                    <div class="col-md-6">
-                        <div id="files-dropzone" class="container border border-primary rounded p-3 dropzone">
+                    <div th:class="${folders.isEmpty()?'col-md-12':'col-md-6'}" id="filesBlock" th:if="${!files.isEmpty()}">
+                        <form id="drop-area-files" action="/files" method="post"
+                            class="container border border-primary rounded p-3 drop-area" enctype="multipart/form-data">
                             <h5>Files</h5>
-                            <ul class="list-group">
+                            <input type="hidden" name="path" th:value="${userPath}">
+                            <input type="file" name="file" id="fileElem" hidden>
+
+                            <ul id="files-list" class="list-group mb-2">
                                 <div th:each="file:${files}"
-                                    class="list-group-item d-flex justify-content-between align-items-center">
+                                    class="list-group-item d-flex justify-content-between align-items-center mb-1 p-2 rounded"
+                                    style="background-color: #bdcad6;">
                                     <div th:replace="~{fragments/file-fragment.html}"></div>
                                 </div>
+                                <p class="text-center mt-4"><b>Drag and drop file here</b></p>
                             </ul>
-                        </div>
-                    </div>
-                </div>
 
+                        </form>
+                    </div>
+
+                    <div th:if="${files.isEmpty()&&folders.isEmpty()}">
+                        <p class="text-center h2 mt-3">Upload your first file!</p>
+                    </div>
+
+                </div>
             </main>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const foldersDropzone = document.getElementById('folders-dropzone');
-            const filesDropzone = document.getElementById('files-dropzone');
 
-            // Предотвращаем поведение по умолчанию для событий dragover и drop
-            function preventDefaults(e) {
+
+
+
+    <script>
+        const dropAreaFolder = document.getElementById('drop-area-folder');
+        const folderInput = document.getElementById('folderElem');
+        const dropAreaFiles = document.getElementById('drop-area-files');
+        const filesInput = document.getElementById('fileElem');
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropAreaFolder.addEventListener(eventName, preventDefaults, false)
+            dropAreaFiles.addEventListener(eventName, preventDefaults, false)
+
+            document.body.addEventListener(eventName, preventDefaults, false)
+        });
+
+        // Покраска области при наведении
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropAreaFolder.addEventListener(eventName, function (e) {
                 e.preventDefault();
                 e.stopPropagation();
-            }
+                dropAreaFolder.classList.add('dragover');
+            });
 
-            // Подсветка зоны во время перетаскивания файлов
-            function highlight(e) {
-                e.target.classList.add('bg-light');
-            }
-
-            // Убираем подсветку
-            function unhighlight(e) {
-                e.target.classList.remove('bg-light');
-            }
-
-            function handleDrop(e) {
-                let dt = e.dataTransfer;
-                let files = dt.files;
-
-                handleFiles(files, e.target.id);
-                unhighlight(e);  // Убираем подсветку после сброса
-            }
-
-            // Обработка файлов и их загрузка
-            function handleFiles(files, dropzoneId) {
-                [...files].forEach(file => {
-                    uploadFile(file, dropzoneId);
-                });
-            }
-
-            // Функция загрузки файла на сервер
-            function uploadFile(file, dropzoneId) {
-                let url = '/upload';  // Укажите здесь URL вашего эндпоинта для загрузки
-                let formData = new FormData();
-                formData.append('file', file);
-
-                // Можно отправить дополнительную информацию о том, куда загружать файл
-                formData.append('dropzone', dropzoneId);
-
-                fetch(url, {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);  // Обработка ответа сервера (например, обновление UI)
-                        alert('File uploaded successfully!');
-                    })
-                    .catch(error => {
-                        console.error('Error uploading file:', error);
-                    });
-            }
-
-            // Добавляем обработчики событий для обеих зон
-            [foldersDropzone, filesDropzone].forEach(dropzone => {
-                dropzone.addEventListener('dragenter', preventDefaults, false);
-                dropzone.addEventListener('dragleave', preventDefaults, false);
-                dropzone.addEventListener('dragover', preventDefaults, false);
-                dropzone.addEventListener('drop', preventDefaults, false);
-
-                dropzone.addEventListener('dragenter', highlight, false);
-                dropzone.addEventListener('dragleave', unhighlight, false);
-                dropzone.addEventListener('dragover', highlight, false);
-                dropzone.addEventListener('drop', handleDrop, false);
+            dropAreaFiles.addEventListener(eventName, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropAreaFiles.classList.add('dragover');
             });
         });
 
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropAreaFolder.addEventListener(eventName, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropAreaFolder.classList.remove('dragover');
+            });
+
+            dropAreaFiles.addEventListener(eventName, function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                dropAreaFiles.classList.remove('dragover');
+            });
+        });
+
+        // Handle dropped files
+        dropAreaFolder.addEventListener('drop', handleDropFolder, false);
+        dropAreaFiles.addEventListener('drop', handleDropFile, false);
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        async function handleDropFolder(e) {
+            let dt = e.dataTransfer;
+            let items = dt.items;
+
+            // Process the dropped folder
+            let files = await getFilesFromItems(items);
+            insertFilesIntoInput(files);
+            dropAreaFolder.submit();
+        }
+        async function handleDropFile(e) {
+            let dt = e.dataTransfer;
+            let items = dt.items;
+
+            // Process the dropped folder
+            let files = await getFilesFromItems(items);
+            insertFilesIntoInput(files);
+            dropAreaFiles.submit();
+        }
+
+        async function getFilesFromItems(items) {
+            let files = [];
+
+            for (let i = 0; i < items.length; i++) {
+                let item = items[i].webkitGetAsEntry();
+                if (item.isDirectory) {
+                    files = files.concat(await readDirectory(item));
+                } else if (item.isFile) {
+                    let file = await new Promise((resolve) => item.file(resolve));
+                    files.push(file);
+                }
+            }
+
+            return files;
+        }
+
+        async function readDirectory(directory) {
+            let reader = directory.createReader();
+            let entries = await new Promise((resolve) => reader.readEntries(resolve));
+            let files = [];
+
+            for (let entry of entries) {
+                if (entry.isDirectory) {
+                    files = files.concat(await readDirectory(entry));
+                } else if (entry.isFile) {
+                    let file = await new Promise((resolve) => entry.file(resolve));
+                    files.push(file);
+                }
+            }
+
+            return files;
+        }
+
+        function insertFilesIntoInput(files) {
+            // Convert the FileList into an array
+            const dataTransfer = new DataTransfer(); // Standard browser API
+            files.forEach(file => dataTransfer.items.add(file));
+
+            // Assign the new files to the input element
+            folderInput.files = dataTransfer.files;
+            filesInput.files = dataTransfer.files;
+
+        }
     </script>
+
+
+
+
+
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 
 </html>
-
-<!-- <form method="post" action="/files" enctype="multipart/form-data" th:object="${uploadFileRequest}">
-    <div class="mb-3">
-        <label for="file" class="form-label">Choose a file</label>
-        <input class="form-control" type="file" id="file" name="file" th:field="*{file}" required>
-        <input type="hidden" name="path"  th:name="path" th:value="${userPath}">
-    </div>
-    <button type="submit" class="btn btn-primary w-100">Upload</button>
-</form> -->
