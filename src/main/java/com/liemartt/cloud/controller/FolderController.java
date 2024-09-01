@@ -5,11 +5,10 @@ import com.liemartt.cloud.dto.folder.CreateFolderRequest;
 import com.liemartt.cloud.dto.folder.DeleteFolderRequest;
 import com.liemartt.cloud.dto.folder.RenameFolderRequest;
 import com.liemartt.cloud.dto.folder.UploadFolderRequest;
-import com.liemartt.cloud.exception.BadFileOperationException;
-import com.liemartt.cloud.service.FolderService;
+import com.liemartt.cloud.exception.FileOperationException;
+import com.liemartt.cloud.service.FolderStorageService;
 import com.liemartt.cloud.util.ErrorParser;
 import com.liemartt.cloud.util.PathUtil;
-import jakarta.validation.Path;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/folders")
 @RequiredArgsConstructor
 public class FolderController {
-    private final FolderService folderService;
+    private final FolderStorageService folderStorageService;
 
 //    @GetMapping
 //    public ResponseEntity<InputStreamResource> downloadFolder(@ModelAttribute("downloadFileRequest") @Valid DownloadFileRequest request,
@@ -49,14 +48,14 @@ public class FolderController {
                                @ModelAttribute("uploadFolderRequest") @Valid UploadFolderRequest request,
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new BadFileOperationException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
+            throw new FileOperationException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
         }
         
         String path = request.getPath();
-        String pathWithUserPrefix = PathUtil.getPathWithUserPrefix(user.getId(), path);
+        String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
         request.setPath(pathWithUserPrefix);
         
-        folderService.uploadFolder(request);
+        folderStorageService.uploadFolder(request);
         
         return "redirect:/?path=" + path;
     }
@@ -66,17 +65,17 @@ public class FolderController {
                                @ModelAttribute("createFolderRequest") @Valid CreateFolderRequest request,
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new BadFileOperationException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
+            throw new FileOperationException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
         }
         
         String path = request.getPath();
-        String pathWithUserPrefix = PathUtil.getPathWithUserPrefix(user.getId(), path);
+        String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
         request.setPath(pathWithUserPrefix);
         
         String folderName = request.getFolderName();
-        request.setFolderName(PathUtil.addSlashToFolderName(folderName));
+        request.setFolderName(PathUtil.addSlashToFolder(folderName));
         
-        folderService.createFolder(request);
+        folderStorageService.createFolder(request);
         
         return "redirect:/?path=" + path;
     }
@@ -86,14 +85,14 @@ public class FolderController {
                                @ModelAttribute("deleteFolderRequest") @Valid DeleteFolderRequest request,
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new BadFileOperationException(ErrorParser.parseError(bindingResult));
+            throw new FileOperationException(ErrorParser.parseError(bindingResult));
         }
         
         String path = request.getPath();
-        String pathWithUserPrefix = PathUtil.getPathWithUserPrefix(user.getId(), path);
+        String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
         request.setPath(pathWithUserPrefix);
         
-        folderService.deleteFolder(request);
+        folderStorageService.deleteFolder(request);
         
         return "redirect:/?path=" + path;
     }
@@ -103,14 +102,14 @@ public class FolderController {
                                @ModelAttribute("renameFolderRequest") @Valid RenameFolderRequest request,
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new BadFileOperationException(ErrorParser.parseError(bindingResult));
+            throw new FileOperationException(ErrorParser.parseError(bindingResult));
         }
         
         String path = request.getPath();
-        String pathWithUserPrefix = PathUtil.getPathWithUserPrefix(user.getId(), path);
+        String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
         request.setPath(pathWithUserPrefix);
         
-        folderService.renameFolder(request);
+        folderStorageService.renameFolder(request);
         
         return "redirect:/?path=" + path;
     }

@@ -1,0 +1,36 @@
+<div class="text-center" style="max-width: 120px">
+
+    <span class="d-block mb-2" th:if="${!object.isDir}">
+        <i class="bi bi-file-earmark display-4 display-md-3 display-sm-5"></i>
+    </span>
+
+    <span class="d-block mb-2" th:if="${object.isDir}">
+        <i class="bi bi-folder-fill display-4 display-md-3 display-sm-5"></i>
+    </span>
+
+    <span th:text="${object.name}" class="d-block text-truncate">
+        File 1
+    </span>
+
+    <!-- Путь к файлу -->
+    <span th:text="${object.path == '' ? '/' : object.path}"
+          class="d-block text-muted text-truncate"
+          style="font-size: 0.85rem;"
+          data-bs-toggle="tooltip"
+          data-bs-placement="bottom"
+          th:title="${object.path == '' ? '/' : object.path}">
+        /path/to/file
+    </span>
+
+    <!-- Кнопка действий с файлом -->
+    <div class="mt-2">
+        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-three-dots"></i>
+        </button>
+        <ul class="dropdown-menu">
+            <li>
+                <a th:href="@{/(path=${object.path})}" class="dropdown-item"><i class="bi bi-binoculars"></i> Open in explorer</a>
+            </li>
+        </ul>
+    </div>
+</div>

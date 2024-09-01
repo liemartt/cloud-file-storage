@@ -27,7 +27,7 @@
     <div class="container-fluid">
         <div class="row mt-2 justify-content-between">
             <div class="d-flex col-auto justify-content-start">
-                <h1>Cloud file storage</h1>
+                <a class="h1 text-decoration-none" href="/">Cloud file storage</a>
             </div>
             <div th:if="${username==null}" class="col-auto d-flex align-items-center justify-content-start">
                 <button class="btn btn-primary me-2">Log in</button>
@@ -51,12 +51,12 @@
     <div th:if="${username!=null}" class="container-fluid h-100 pt-2">
         <!-- Search input -->
         <div class="d-flex justify-content-center mt-5 mb-3">
-            <div class="input-group mb-3 w-50">
+            <form action="/search" method="get" class="input-group mb-3 w-50">
                 <input type="text" class="form-control border border-secondary text-secondary"
-                       placeholder="Search files">
-                <button class="btn btn-outline-secondary" type="button" id="button-addon2"><i
+                       placeholder="Search files" name = "query" required>
+                <button class="btn btn-outline-secondary" type="submit" id="button-addon2"><i
                         class="bi bi-search"></i></button>
-            </div>
+            </form>
         </div>
 
         <!-- Main block -->

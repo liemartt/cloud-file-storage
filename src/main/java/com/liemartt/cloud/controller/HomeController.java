@@ -6,11 +6,11 @@ import com.liemartt.cloud.dto.FileResponse;
 import com.liemartt.cloud.dto.FolderResponse;
 import com.liemartt.cloud.dto.file.UploadFileRequest;
 import com.liemartt.cloud.exception.PathNotExistsException;
-import com.liemartt.cloud.service.FileService;
-import com.liemartt.cloud.service.FolderService;
+import com.liemartt.cloud.service.FileStorageService;
+import com.liemartt.cloud.service.FolderStorageService;
 import com.liemartt.cloud.util.MinioUtil;
 import com.liemartt.cloud.util.PathUtil;
-import io.minio.errors.*;
+import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -19,32 +19,30 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 @Controller
 @RequestMapping("/")
 @RequiredArgsConstructor
 public class HomeController {
-    private final FileService fileService;
-    private final FolderService folderService;
+    private final FileStorageService fileStorageService;
+    private final FolderStorageService folderStorageService;
     private final MinioUtil minioUtil;
     
     
     @GetMapping
     public String getHomePage(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                               @RequestParam(required = false, defaultValue = "") String path,
-                              Model model){
-        String userPath = PathUtil.getPathWithUserPrefix(customUserDetails.getId(), path);
+                              Model model) {
+        String userPath = PathUtil.addUserPrefix(customUserDetails.getId(), path);
         
         if (!minioUtil.isPathExists(userPath)) {
             throw new PathNotExistsException();
         }
         
-        List<FolderResponse> userFolders = folderService.getUserFolders(userPath);
-        List<FileResponse> userFiles = fileService.getUserFiles(userPath);
+        
+        List<FolderResponse> userFolders = folderStorageService.getUserFolders(userPath);
+        List<FileResponse> userFiles = fileStorageService.getUserFiles(userPath);
         List<BreadcrumbLink> breadcrumbLinks = minioUtil.getBreadcrumbLinks(path);
         
         

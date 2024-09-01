@@ -5,7 +5,7 @@ import com.liemartt.cloud.dto.file.DeleteFileRequest;
 import com.liemartt.cloud.dto.file.DownloadFileRequest;
 import com.liemartt.cloud.dto.file.RenameFileRequest;
 import com.liemartt.cloud.dto.file.UploadFileRequest;
-import com.liemartt.cloud.exception.BadFileOperationException;
+import com.liemartt.cloud.exception.FileOperationException;
 import com.liemartt.cloud.util.MinioUtil;
 import io.minio.*;
 import io.minio.messages.Item;
@@ -19,7 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class FileService extends MinioAbstractClass {
+public class FileStorageService extends MinioAbstractClass {
     private final MinioClient minioClient;
     public final MinioUtil minioUtil;
     
@@ -35,7 +35,7 @@ public class FileService extends MinioAbstractClass {
                             .build()
             );
         } catch (Exception e) {
-            throw new BadFileOperationException("Error downloading file");
+            throw new FileOperationException("Error downloading file");
         }
     }
     
@@ -51,7 +51,7 @@ public class FileService extends MinioAbstractClass {
                     .contentType(file.getContentType())
                     .build());
         } catch (Exception e) {
-            throw new BadFileOperationException("Error uploading file");
+            throw new FileOperationException("Error uploading file");
         }
     }
     
@@ -65,7 +65,7 @@ public class FileService extends MinioAbstractClass {
                     .object(path + fileName)
                     .build());
         } catch (Exception e) {
-            throw new BadFileOperationException("Error deleting file");
+            throw new FileOperationException("Error deleting file");
         }
     }
     
@@ -88,7 +88,7 @@ public class FileService extends MinioAbstractClass {
             
             deleteFile(deleteFileRequest);
         } catch (Exception e) {
-            throw new BadFileOperationException("Error renaming file");
+            throw new FileOperationException("Error renaming file");
         }
     }
     
@@ -99,10 +99,10 @@ public class FileService extends MinioAbstractClass {
                     .filter(item -> !item.isDir())
                     .sorted(Comparator.comparing(Item::lastModified).reversed())
                     .map(FileResponse::new)
-                    .filter(object -> !object.getName().isBlank() && !object.isDir())
+                    .filter(object -> !object.getName().isBlank())
                     .toList();
         } catch (Exception e) {
-            throw new BadFileOperationException("Error fetching files");
+            throw new FileOperationException("Error fetching files");
         }
     }
 }

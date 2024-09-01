@@ -8,7 +8,7 @@ import com.liemartt.cloud.dto.folder.CreateFolderRequest;
 import com.liemartt.cloud.dto.folder.DeleteFolderRequest;
 import com.liemartt.cloud.dto.folder.RenameFolderRequest;
 import com.liemartt.cloud.dto.folder.UploadFolderRequest;
-import com.liemartt.cloud.exception.BadFolderOperationException;
+import com.liemartt.cloud.exception.FolderOperationException;
 import com.liemartt.cloud.util.MinioUtil;
 import io.minio.*;
 import io.minio.messages.Item;
@@ -22,9 +22,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class FolderService extends MinioAbstractClass {
+public class FolderStorageService extends MinioAbstractClass {
     private final MinioClient minioClient;
-    private final FileService fileService;
+    private final FileStorageService fileStorageService;
     public final MinioUtil minioUtil;
     
     public void createFolder(CreateFolderRequest request) {
@@ -38,7 +38,7 @@ public class FolderService extends MinioAbstractClass {
                             .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
                             .build());
         } catch (Exception e) {
-            throw new BadFolderOperationException("Error creating folder");
+            throw new FolderOperationException("Error creating folder");
         }
     }
     
@@ -48,10 +48,10 @@ public class FolderService extends MinioAbstractClass {
         try {
             for (MultipartFile file : files) {
                 UploadFileRequest uploadFileRequest = new UploadFileRequest(path, file);
-                fileService.uploadFile(uploadFileRequest);
+                fileStorageService.uploadFile(uploadFileRequest);
             }
         } catch (Exception e) {
-            throw new BadFolderOperationException("Error uploading folder");
+            throw new FolderOperationException("Error uploading folder");
         }
         
     }
@@ -71,13 +71,13 @@ public class FolderService extends MinioAbstractClass {
                 String newObjectName = oldObjectName.replaceFirst(oldPathToFiles, newPathToFiles);
                 
                 RenameFileRequest renameFileRequest = new RenameFileRequest("", oldObjectName, newObjectName);
-                fileService.renameFile(renameFileRequest);
+                fileStorageService.renameFile(renameFileRequest);
                 
                 DeleteFileRequest deleteFileRequest = new DeleteFileRequest("", oldObjectName);
-                fileService.deleteFile(deleteFileRequest);
+                fileStorageService.deleteFile(deleteFileRequest);
             }
         } catch (Exception e) {
-            throw new BadFolderOperationException("Error renaming folder");
+            throw new FolderOperationException("Error renaming folder");
         }
     }
     
@@ -94,10 +94,10 @@ public class FolderService extends MinioAbstractClass {
                 String objectName = item.objectName();
                 
                 DeleteFileRequest deleteFileRequest = new DeleteFileRequest("", objectName);
-                fileService.deleteFile(deleteFileRequest);
+                fileStorageService.deleteFile(deleteFileRequest);
             }
         } catch (Exception e) {
-            throw new BadFolderOperationException("Error deleting folder");
+            throw new FolderOperationException("Error deleting folder");
         }
     }
     
@@ -111,7 +111,7 @@ public class FolderService extends MinioAbstractClass {
                     .sorted(Comparator.comparing(FolderResponse::getFolderName))
                     .toList();
         } catch (Exception e) {
-            throw new BadFolderOperationException("Error fetching folders");
+            throw new FolderOperationException("Error fetching folders");
         }
     }
     
