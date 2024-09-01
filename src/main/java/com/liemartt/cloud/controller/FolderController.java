@@ -1,19 +1,24 @@
 package com.liemartt.cloud.controller;
 
+import com.liemartt.cloud.dto.CustomUserDetails;
+import com.liemartt.cloud.dto.folder.CreateFolderRequest;
 import com.liemartt.cloud.dto.folder.DeleteFolderRequest;
 import com.liemartt.cloud.dto.folder.RenameFolderRequest;
 import com.liemartt.cloud.dto.folder.UploadFolderRequest;
 import com.liemartt.cloud.exception.BadFileException;
 import com.liemartt.cloud.service.FolderService;
 import com.liemartt.cloud.util.ErrorParser;
+import com.liemartt.cloud.util.PathUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 
-@RestController
+@Controller
 @RequestMapping("/folders")
 @RequiredArgsConstructor
 public class FolderController {
@@ -40,44 +45,89 @@ public class FolderController {
 //        }
 //    }
     
-    @PostMapping
-    public void uploadFolder(@ModelAttribute("uploadFolderRequest") @Valid UploadFolderRequest request,
+    @PostMapping("/upload")
+    public String uploadFolder(@AuthenticationPrincipal CustomUserDetails user,
+                             @ModelAttribute("uploadFolderRequest") @Valid UploadFolderRequest request,
                              BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new BadFileException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
         }
-        System.out.println(Arrays.toString(request.getFolder()));
+        
+        String path = request.getPath();
+        String pathWithUserPrefix = PathUtil.getPathWithUserPrefix(user.getId(), path);
+        request.setPath(pathWithUserPrefix);
         
         try {
             folderService.uploadFolder(request);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return "redirect:/?path="+path;
     }
     
-    @DeleteMapping
-    public void deleteFolder(@ModelAttribute("deleteFolderRequest") @Valid DeleteFolderRequest request,
+    @PostMapping("/create")
+    public String createFolder(@AuthenticationPrincipal CustomUserDetails user,
+                             @ModelAttribute("createFolderRequest") @Valid CreateFolderRequest request,
+                             BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new BadFileException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
+        }
+        
+        String path = request.getPath();
+        String pathWithUserPrefix = PathUtil.getPathWithUserPrefix(user.getId(), path);
+        request.setPath(pathWithUserPrefix);
+        
+        String folderName = request.getFolderName();
+        if (!folderName.endsWith("/")) {
+            folderName += "/";
+        }
+        request.setFolderName(folderName);
+        
+        try {
+            folderService.createFolder(request);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return "redirect:/?path="+path;
+    }
+    
+    @PostMapping("/delete")
+    public String deleteFolder(@AuthenticationPrincipal CustomUserDetails user,
+                             @ModelAttribute("deleteFolderRequest") @Valid DeleteFolderRequest request,
                              BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new BadFileException(ErrorParser.parseError(bindingResult));
         }
+        
+        String path = request.getPath();
+        String pathWithUserPrefix = PathUtil.getPathWithUserPrefix(user.getId(), path);
+        request.setPath(pathWithUserPrefix);
+        
         try {
             folderService.deleteFolder(request);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return "redirect:/?path="+path;
     }
     
-    @PatchMapping
-    public void renameFolder(@ModelAttribute("renameFolderRequest") @Valid RenameFolderRequest request,
+    @PostMapping("/rename")
+    public String renameFolder(@AuthenticationPrincipal CustomUserDetails user,
+                             @ModelAttribute("renameFolderRequest") @Valid RenameFolderRequest request,
                              BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new BadFileException(ErrorParser.parseError(bindingResult));
         }
+        
+        String path = request.getPath();
+        String pathWithUserPrefix = PathUtil.getPathWithUserPrefix(user.getId(), path);
+        request.setPath(pathWithUserPrefix);
+        
         try {
             folderService.renameFolder(request);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return "redirect:/?path="+path;
     }
 }

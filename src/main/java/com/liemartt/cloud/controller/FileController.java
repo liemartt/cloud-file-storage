@@ -9,38 +9,39 @@ import com.liemartt.cloud.exception.BadFileException;
 import com.liemartt.cloud.service.FileService;
 import com.liemartt.cloud.util.ErrorParser;
 import com.liemartt.cloud.util.PathUtil;
-import io.minio.errors.*;
 import jakarta.validation.Valid;
-import jdk.jfr.MetadataDefinition;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import org.springframework.http.HttpHeaders;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
-@RestController
+@Controller
 @RequestMapping("/files")
 @RequiredArgsConstructor
 public class FileController {
     private final FileService fileService;
     
-    @GetMapping
-    public ResponseEntity<InputStreamResource> downloadFile(@ModelAttribute("downloadFileRequest") @Valid DownloadFileRequest request,
+    
+    @GetMapping("/download")
+    public ResponseEntity<InputStreamResource> downloadFile(@AuthenticationPrincipal CustomUserDetails user,
+                                                            @ModelAttribute("downloadFileRequest") @Valid DownloadFileRequest request,
                                                             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new BadFileException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
         }
+        
+        String path = request.getPath();
+        String pathWithUserPrefix = PathUtil.getPathWithUserPrefix(user.getId(), path);
+        request.setPath(pathWithUserPrefix);
         
         try {
             InputStream fileInputStream = fileService.downloadFile(request);
@@ -56,43 +57,60 @@ public class FileController {
         }
     }
     
-    @PostMapping
-    public void uploadFile(@ModelAttribute("uploadFileRequest") @Valid UploadFileRequest request,
+    @PostMapping("/upload")
+    public String uploadFile(@AuthenticationPrincipal CustomUserDetails user,
+                           @ModelAttribute("uploadFileRequest") @Valid UploadFileRequest request,
                            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new BadFileException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
         }
+        
+        String path = request.getPath();
+        String pathWithUserPrefix = PathUtil.getPathWithUserPrefix(user.getId(), path);
+        request.setPath(pathWithUserPrefix);
         
         try {
             fileService.uploadFile(request);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return "redirect:/?path="+path;
     }
     
-    @DeleteMapping
-    public void deleteFile(@ModelAttribute("deleteFileRequest") @Valid DeleteFileRequest request,
+    @PostMapping("/delete")
+    public String deleteFile(@AuthenticationPrincipal CustomUserDetails user,
+                           @ModelAttribute("deleteFileRequest") @Valid DeleteFileRequest request,
                            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new BadFileException(ErrorParser.parseError(bindingResult));
         }
+        
+        String path = request.getPath();
+        String pathWithUserPrefix = PathUtil.getPathWithUserPrefix(user.getId(), path);
+        request.setPath(pathWithUserPrefix);
         try {
             fileService.deleteFile(request);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return "redirect:/?path="+path;
     }
     
-    @PatchMapping
-    public void renameFile(@ModelAttribute("renameFileRequest") @Valid RenameFileRequest request,
+    @PostMapping("/rename")
+    public String renameFile(@AuthenticationPrincipal CustomUserDetails user,
+                           @ModelAttribute("renameFileRequest") @Valid RenameFileRequest request,
                            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new BadFileException(ErrorParser.parseError(bindingResult));
         }
+        String path = request.getPath();
+        String pathWithUserPrefix = PathUtil.getPathWithUserPrefix(user.getId(), path);
+        request.setPath(pathWithUserPrefix);
         try {
             fileService.renameFile(request);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return "redirect:/?path="+path;
     }
 }

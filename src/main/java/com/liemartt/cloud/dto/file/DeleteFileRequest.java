@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class DeleteFileRequest {
+    private String path;
     @NotNull(message = "Filename must exists")
     private String fileName;
 }

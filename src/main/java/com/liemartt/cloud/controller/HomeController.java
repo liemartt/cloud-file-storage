@@ -36,14 +36,14 @@ public class HomeController {
                               Model model) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         //todo valid path
         
-        String userPath = PathUtil.getUserPath(customUserDetails.getId(), path);
+        String userPath = PathUtil.getPathWithUserPrefix(customUserDetails.getId(), path);
         
         List<FolderResponse> userFolders = folderService.getUserFolders(userPath);
         List<FileResponse> userFiles = folderService.getUserFiles(userPath);
         List<BreadcrumbLink> breadcrumbLinks = folderService.getBreadcrumbLinks(path);
         
         
-        model.addAttribute("userPath", userPath);
+        model.addAttribute("path", path);
         model.addAttribute("files", userFiles);
         model.addAttribute("folders", userFolders);
         model.addAttribute("breadcrumbLinks", breadcrumbLinks);

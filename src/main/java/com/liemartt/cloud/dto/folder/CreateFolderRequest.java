@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class CreateFolderRequest {
+    private String path;
     @NotNull(message = "Name must exist")
     private String folderName;
 }

@@ -49,30 +49,34 @@ public class FileService extends MinioService {
         }
     }
     
-    public void deleteFile(DeleteFileRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public void deleteFile(DeleteFileRequest request)
+            throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        String path = request.getPath();
         String fileName = request.getFileName();
         
         minioClient.removeObject(RemoveObjectArgs.builder()
                 .bucket(bucketName)
-                .object(fileName)
+                .object(path+fileName)
                 .build());
     }
     
     @SneakyThrows
     public void renameFile(RenameFileRequest request) {
+        String path = request.getPath();
         String oldName = request.getOldName();
         String newName = request.getNewName();
+
         
         minioClient.copyObject(CopyObjectArgs.builder()
                 .bucket(bucketName)
-                .object(newName)
+                .object(path+newName)
                 .source(CopySource.builder()
                         .bucket(bucketName)
-                        .object(oldName)
+                        .object(path+oldName)
                         .build())
                 .build());
         
-        DeleteFileRequest deleteFileRequest = new DeleteFileRequest(oldName);
+        DeleteFileRequest deleteFileRequest = new DeleteFileRequest(path, oldName);
         
         deleteFile(deleteFileRequest);
     }

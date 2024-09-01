@@ -7,7 +7,7 @@ import lombok.Data;
 public class FileResponse {
     private String name;
     private String size;
-    private String pathWithObjectName;
+    private String fullName;
     private String pathWithoutObjectName;
     private boolean isDir;
     
@@ -15,7 +15,7 @@ public class FileResponse {
     public FileResponse(Item item) {
         name = getObjectName(item);
         size = getItemSize(item.size());
-        pathWithObjectName = item.objectName();
+        fullName = item.objectName();
         pathWithoutObjectName = getPathWithoutObjectName(item);
         isDir = item.isDir();
     }
