@@ -72,6 +72,7 @@
 
             <!-- Action buttons -->
             <div class="d-flex justify-content-start pt-2">
+
                 <!--Upload file button-->
                 <form method="post" action="/files/upload" enctype="multipart/form-data">
                     <input type="file" name="file" id="fileInput" style="display:none;"
@@ -137,7 +138,8 @@
                     </form>
 
                     <!-- Сетка папок -->
-                    <div class="d-flex flex-wrap justify-content-start rounded border border-primary drop-area" id="drop-area-folder">
+                    <div class="d-flex flex-wrap justify-content-start rounded border border-primary drop-area"
+                         id="drop-area-folder">
                         <div th:each="folder, stat:${folders}" class="d-flex flex-column align-items-center m-2 p-2"
                              style="width: 120px;">
                             <div th:replace="~{fragments/folder-fragment.html}"></div>
@@ -152,7 +154,8 @@
                         <input type="hidden" name="path" th:value="${path}">
                         <input type="file" name="file" id="fileElem" hidden>
                     </form>
-                    <div class="d-flex flex-wrap justify-content-start container rounded border border-primary p-3 drop-area" id="drop-area-files">
+                    <div class="d-flex flex-wrap justify-content-start container rounded border border-primary p-3 drop-area"
+                         id="drop-area-files">
                         <!-- Пример элемента файла -->
                         <div th:each="file, stat:${files}" class="d-flex flex-column align-items-center m-2 p-2"
                              style="width: 120px;">
@@ -290,6 +293,28 @@
         filesInput.files = dataTransfer.files;
 
     }
+
+    function downloadFile(path, fileName) {
+        const url = `/files/download?path=${path}&fileName=${fileName}`;
+
+        fetch(url)
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                }
+                throw new Error("Error downloading file");
+            })
+            .then(blob => {
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = fileName;
+                link.click();
+            })
+            .catch(error => {
+                console.error("Error downloading file: ", error);
+            });
+    }
+
 </script>
 
 
