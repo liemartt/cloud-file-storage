@@ -11,5 +11,10 @@ public class PathUtil {
         return path;
     }
     
-    
+    public static String addSlashToFolderName(String name) {
+        if(!name.endsWith("/")){
+            name = name+"/";
+        }
+        return name;
+    }
 }

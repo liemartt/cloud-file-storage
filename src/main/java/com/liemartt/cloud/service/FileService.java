@@ -1,39 +1,45 @@
 package com.liemartt.cloud.service;
 
+import com.liemartt.cloud.dto.FileResponse;
 import com.liemartt.cloud.dto.file.DeleteFileRequest;
 import com.liemartt.cloud.dto.file.DownloadFileRequest;
 import com.liemartt.cloud.dto.file.RenameFileRequest;
 import com.liemartt.cloud.dto.file.UploadFileRequest;
-import com.liemartt.cloud.exception.BadFileException;
+import com.liemartt.cloud.exception.BadFileOperationException;
+import com.liemartt.cloud.util.MinioUtil;
 import io.minio.*;
-import io.minio.errors.*;
+import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.util.Comparator;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class FileService extends MinioService {
+public class FileService extends MinioAbstractClass {
     private final MinioClient minioClient;
+    public final MinioUtil minioUtil;
     
-    public InputStream downloadFile(DownloadFileRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public InputStream downloadFile(DownloadFileRequest request) {
+        String path = request.getPath();
         String fileName = request.getFileName();
         
-        return minioClient.getObject(
-                GetObjectArgs.builder()
-                        .bucket(bucketName)
-                        .object(fileName)
-                        .build()
-        );
+        try {
+            return minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(path + fileName)
+                            .build()
+            );
+        } catch (Exception e) {
+            throw new BadFileOperationException("Error downloading file");
+        }
     }
     
-    public void uploadFile(UploadFileRequest request) throws ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public void uploadFile(UploadFileRequest request) {
         String path = request.getPath();
         MultipartFile file = request.getFile();
         
@@ -44,40 +50,59 @@ public class FileService extends MinioService {
                     .stream(inputStream, file.getSize(), -1)
                     .contentType(file.getContentType())
                     .build());
-        } catch (IOException e) {
-            throw new BadFileException("Can`t save this file");
+        } catch (Exception e) {
+            throw new BadFileOperationException("Error uploading file");
         }
     }
     
-    public void deleteFile(DeleteFileRequest request)
-            throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public void deleteFile(DeleteFileRequest request) {
         String path = request.getPath();
         String fileName = request.getFileName();
         
-        minioClient.removeObject(RemoveObjectArgs.builder()
-                .bucket(bucketName)
-                .object(path+fileName)
-                .build());
+        try {
+            minioClient.removeObject(RemoveObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(path + fileName)
+                    .build());
+        } catch (Exception e) {
+            throw new BadFileOperationException("Error deleting file");
+        }
     }
     
-    @SneakyThrows
     public void renameFile(RenameFileRequest request) {
         String path = request.getPath();
         String oldName = request.getOldName();
         String newName = request.getNewName();
-
         
-        minioClient.copyObject(CopyObjectArgs.builder()
-                .bucket(bucketName)
-                .object(path+newName)
-                .source(CopySource.builder()
-                        .bucket(bucketName)
-                        .object(path+oldName)
-                        .build())
-                .build());
-        
-        DeleteFileRequest deleteFileRequest = new DeleteFileRequest(path, oldName);
-        
-        deleteFile(deleteFileRequest);
+        try {
+            minioClient.copyObject(CopyObjectArgs.builder()
+                    .bucket(bucketName)
+                    .object(path + newName)
+                    .source(CopySource.builder()
+                            .bucket(bucketName)
+                            .object(path + oldName)
+                            .build())
+                    .build());
+            
+            DeleteFileRequest deleteFileRequest = new DeleteFileRequest(path, oldName);
+            
+            deleteFile(deleteFileRequest);
+        } catch (Exception e) {
+            throw new BadFileOperationException("Error renaming file");
+        }
+    }
+    
+    public List<FileResponse> getUserFiles(String path) {
+        try {
+            List<Item> items = minioUtil.getObjects(path, false);
+            return items.stream()
+                    .filter(item -> !item.isDir())
+                    .sorted(Comparator.comparing(Item::lastModified).reversed())
+                    .map(FileResponse::new)
+                    .filter(object -> !object.getName().isBlank() && !object.isDir())
+                    .toList();
+        } catch (Exception e) {
+            throw new BadFileOperationException("Error fetching files");
+        }
     }
 }

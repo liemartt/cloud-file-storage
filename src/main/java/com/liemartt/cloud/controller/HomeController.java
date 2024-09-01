@@ -5,8 +5,10 @@ import com.liemartt.cloud.dto.CustomUserDetails;
 import com.liemartt.cloud.dto.FileResponse;
 import com.liemartt.cloud.dto.FolderResponse;
 import com.liemartt.cloud.dto.file.UploadFileRequest;
+import com.liemartt.cloud.exception.PathNotExistsException;
 import com.liemartt.cloud.service.FileService;
 import com.liemartt.cloud.service.FolderService;
+import com.liemartt.cloud.util.MinioUtil;
 import com.liemartt.cloud.util.PathUtil;
 import io.minio.errors.*;
 import lombok.RequiredArgsConstructor;
@@ -28,19 +30,22 @@ import java.util.List;
 public class HomeController {
     private final FileService fileService;
     private final FolderService folderService;
+    private final MinioUtil minioUtil;
     
     
     @GetMapping
     public String getHomePage(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                               @RequestParam(required = false, defaultValue = "") String path,
-                              Model model) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        //todo valid path
-        
+                              Model model){
         String userPath = PathUtil.getPathWithUserPrefix(customUserDetails.getId(), path);
         
+        if (!minioUtil.isPathExists(userPath)) {
+            throw new PathNotExistsException();
+        }
+        
         List<FolderResponse> userFolders = folderService.getUserFolders(userPath);
-        List<FileResponse> userFiles = folderService.getUserFiles(userPath);
-        List<BreadcrumbLink> breadcrumbLinks = folderService.getBreadcrumbLinks(path);
+        List<FileResponse> userFiles = fileService.getUserFiles(userPath);
+        List<BreadcrumbLink> breadcrumbLinks = minioUtil.getBreadcrumbLinks(path);
         
         
         model.addAttribute("path", path);
