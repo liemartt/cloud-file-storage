@@ -13,10 +13,13 @@ import com.liemartt.cloud.util.MinioUtil;
 import io.minio.*;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -25,7 +28,8 @@ import java.util.List;
 public class FolderStorageService extends MinioAbstractClass {
     private final MinioClient minioClient;
     private final FileStorageService fileStorageService;
-    public final MinioUtil minioUtil;
+    private final MinioUtil minioUtil;
+    private final Logger logger = LoggerFactory.getLogger(FolderStorageService.class);
     
     public void createFolder(CreateFolderRequest request) {
         String path = request.getPath();
@@ -38,6 +42,7 @@ public class FolderStorageService extends MinioAbstractClass {
                             .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
                             .build());
         } catch (Exception e) {
+            logger.error("Error creating folder {}: {}", path + name, e.getMessage());
             throw new FolderOperationException("Error creating folder");
         }
     }
@@ -51,6 +56,7 @@ public class FolderStorageService extends MinioAbstractClass {
                 fileStorageService.uploadFile(uploadFileRequest);
             }
         } catch (Exception e) {
+            logger.error("Error uploading folder {}: {}", path + Arrays.toString(files), e.getMessage());
             throw new FolderOperationException("Error uploading folder");
         }
         
@@ -77,6 +83,7 @@ public class FolderStorageService extends MinioAbstractClass {
                 fileStorageService.deleteFile(deleteFileRequest);
             }
         } catch (Exception e) {
+            logger.error("Error renaming folder '{}'->'{}': {}", path + oldName, path + newName, e.getMessage());
             throw new FolderOperationException("Error renaming folder");
         }
     }
@@ -97,6 +104,7 @@ public class FolderStorageService extends MinioAbstractClass {
                 fileStorageService.deleteFile(deleteFileRequest);
             }
         } catch (Exception e) {
+            logger.error("Error deleting folder {}: {}", pathToFiles, e.getMessage());
             throw new FolderOperationException("Error deleting folder");
         }
     }
@@ -111,6 +119,7 @@ public class FolderStorageService extends MinioAbstractClass {
                     .sorted(Comparator.comparing(FolderResponse::getFolderName))
                     .toList();
         } catch (Exception e) {
+            logger.error("Error fetching user folders in {}", path);
             throw new FolderOperationException("Error fetching folders");
         }
     }

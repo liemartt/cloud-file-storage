@@ -50,7 +50,7 @@ public class HomeController {
             throw new PathNotExistsException();
         }
         
-        logger.info("Fetching info for user with id {}", customUserDetails.getId());
+        logger.info("Fetching data for user with id {}", customUserDetails.getId());
         List<FolderResponse> userFolders = folderStorageService.getUserFolders(userPath);
         List<FileResponse> userFiles = fileStorageService.getUserFiles(userPath);
         List<BreadcrumbLink> breadcrumbLinks = minioUtil.getBreadcrumbLinks(path);

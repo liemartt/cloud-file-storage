@@ -11,6 +11,8 @@ import com.liemartt.cloud.util.ErrorParser;
 import com.liemartt.cloud.util.PathUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -21,41 +23,26 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class FolderController {
     private final FolderStorageService folderStorageService;
-
-//    @GetMapping
-//    public ResponseEntity<InputStreamResource> downloadFolder(@ModelAttribute("downloadFileRequest") @Valid DownloadFileRequest request,
-//                                                            BindingResult bindingResult) {
-//        if (bindingResult.hasErrors()) {
-//            throw new BadFileException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
-//        }
-//
-//        try {
-//            InputStream fileInputStream = fileService.downloadFile(request);
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + request.getFileName() + "\"");
-//
-//            return ResponseEntity.ok()
-//                    .headers(headers)
-//                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//                    .body(new InputStreamResource(fileInputStream));
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
+    private final Logger logger = LoggerFactory.getLogger(FolderController.class);
     
     @PostMapping("/upload")
     public String uploadFolder(@AuthenticationPrincipal CustomUserDetails user,
                                @ModelAttribute("uploadFolderRequest") @Valid UploadFolderRequest request,
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new FileOperationException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
+            logger.warn("Empty arguments in folder upload request: {}", request);
+            throw new FileOperationException(ErrorParser.parseError(bindingResult));
         }
+        
+        logger.info("Uploading folder with files [{}] for user {}", request.getFolder(), user.getId());
         
         String path = request.getPath();
         String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
         request.setPath(pathWithUserPrefix);
         
         folderStorageService.uploadFolder(request);
+        
+        logger.info("Successfully uploaded folder for user {}", user.getId());
         
         return "redirect:/?path=" + path;
     }
@@ -65,8 +52,11 @@ public class FolderController {
                                @ModelAttribute("createFolderRequest") @Valid CreateFolderRequest request,
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
+            logger.warn("Empty arguments in folder creation request: {}", request);
             throw new FileOperationException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
         }
+        
+        logger.info("Creating empty folder with name {} for user {}", request.getFolderName(), user.getId());
         
         String path = request.getPath();
         String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
@@ -77,6 +67,8 @@ public class FolderController {
         
         folderStorageService.createFolder(request);
         
+        logger.info("Successfully created folder {} for user {}", request.getFolderName(), user.getId());
+        
         return "redirect:/?path=" + path;
     }
     
@@ -85,14 +77,18 @@ public class FolderController {
                                @ModelAttribute("deleteFolderRequest") @Valid DeleteFolderRequest request,
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
+            logger.warn("Empty arguments in delete folder request {}", request);
             throw new FileOperationException(ErrorParser.parseError(bindingResult));
         }
+        logger.info("Deleting folder {} of user {}", request.getFolderName(), user.getId());
         
         String path = request.getPath();
         String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
         request.setPath(pathWithUserPrefix);
         
         folderStorageService.deleteFolder(request);
+        
+        logger.info("Successfully deleted folder {} for user {}", request.getFolderName(), user.getId());
         
         return "redirect:/?path=" + path;
     }
@@ -102,14 +98,18 @@ public class FolderController {
                                @ModelAttribute("renameFolderRequest") @Valid RenameFolderRequest request,
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
+            logger.warn("Empty rename folder request arguments {}", request);
             throw new FileOperationException(ErrorParser.parseError(bindingResult));
         }
+        
+        logger.info("Renaming folder '{}'->'{}' for user {}", request.getOldName(), request.getNewName(), user.getId());
         
         String path = request.getPath();
         String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
         request.setPath(pathWithUserPrefix);
         
         folderStorageService.renameFolder(request);
+        logger.info("Successfully renamed folder '{}'->'{}' for user {}", request.getOldName(), request.getNewName(), user.getId());
         
         return "redirect:/?path=" + path;
     }

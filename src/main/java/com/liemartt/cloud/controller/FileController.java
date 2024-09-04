@@ -11,6 +11,8 @@ import com.liemartt.cloud.util.ErrorParser;
 import com.liemartt.cloud.util.PathUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -25,7 +27,7 @@ import java.io.InputStream;
 @RequiredArgsConstructor
 public class FileController {
     private final FileStorageService fileStorageService;
-    
+    private final Logger logger = LoggerFactory.getLogger(FileController.class);
     
     @GetMapping("/download")
     public ResponseEntity<byte[]> downloadFile(@AuthenticationPrincipal CustomUserDetails user,
@@ -34,12 +36,16 @@ public class FileController {
         if (bindingResult.hasErrors()) {
             throw new FileOperationException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
         }
+        logger.info("Downloading file '{}' of user {}", request.getFileName(), user.getId());
         
         String path = request.getPath();
         String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
         request.setPath(pathWithUserPrefix);
         
         InputStream fileInputStream = fileStorageService.downloadFile(request);
+        
+        logger.info("Successfully downloaded file '{}' of user {}", request.getFileName(), user.getId());
+        
         byte[] content = fileInputStream.readAllBytes();
         
         HttpHeaders headers = new HttpHeaders();
@@ -57,11 +63,17 @@ public class FileController {
             throw new FileOperationException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
         }
         
+        logger.info("Uploading file {} for user {}", request.getFile().getOriginalFilename(), user.getId());
+        
         String path = request.getPath();
         String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
         request.setPath(pathWithUserPrefix);
         
         fileStorageService.uploadFile(request);
+        
+        logger.info("Successfully uploaded file '{}' for user {}", request.getFile()
+                .getOriginalFilename(), user.getId());
+        
         
         return "redirect:/?path=" + path;
     }
@@ -74,10 +86,14 @@ public class FileController {
             throw new FileOperationException(ErrorParser.parseError(bindingResult));
         }
         
+        logger.info("Deleting file '{}' of user {}", request.getFileName(), user.getId());
+        
         String path = request.getPath();
         String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
         request.setPath(pathWithUserPrefix);
         fileStorageService.deleteFile(request);
+        
+        logger.info("Successfully deleted file '{}' of user {}", request.getFileName(), user.getId());
         
         return "redirect:/?path=" + path;
     }
@@ -90,6 +106,8 @@ public class FileController {
             throw new FileOperationException(ErrorParser.parseError(bindingResult));
         }
         
+        logger.info("Renaming file '{}' -> '{}' of user {}", request.getOldName(), request.getNewName(), user.getId());
+        
         String path = request.getPath();
         
         String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
@@ -97,12 +115,14 @@ public class FileController {
         
         
         String oldName = request.getOldName();
-        String fileExtension = oldName.substring(oldName.lastIndexOf(".")+1);
+        String fileExtension = oldName.substring(oldName.lastIndexOf(".") + 1);
         
         String newName = PathUtil.addExtensionToFile(request.getNewName(), fileExtension);
         request.setNewName(newName);
         
         fileStorageService.renameFile(request);
+        
+        logger.info("Successfully renamed file '{}' to '{}' of user {}", request.getOldName(), request.getNewName(), user.getId());
         
         return "redirect:/?path=" + path;
     }

@@ -10,6 +10,8 @@ import com.liemartt.cloud.util.MinioUtil;
 import io.minio.*;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,7 +23,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileStorageService extends MinioAbstractClass {
     private final MinioClient minioClient;
-    public final MinioUtil minioUtil;
+    private final MinioUtil minioUtil;
+    private final Logger logger = LoggerFactory.getLogger(FileStorageService.class);
     
     public InputStream downloadFile(DownloadFileRequest request) {
         String path = request.getPath();
@@ -35,6 +38,7 @@ public class FileStorageService extends MinioAbstractClass {
                             .build()
             );
         } catch (Exception e) {
+            logger.error("Error downloading file {}: {}", path + fileName, e.getMessage());
             throw new FileOperationException("Error downloading file");
         }
     }
@@ -51,6 +55,7 @@ public class FileStorageService extends MinioAbstractClass {
                     .contentType(file.getContentType())
                     .build());
         } catch (Exception e) {
+            logger.error("Error uploading file {}: {}", path + file.getOriginalFilename(), e.getMessage());
             throw new FileOperationException("Error uploading file");
         }
     }
@@ -65,6 +70,7 @@ public class FileStorageService extends MinioAbstractClass {
                     .object(path + fileName)
                     .build());
         } catch (Exception e) {
+            logger.error("Error deleting file {}: {}", path + fileName, e.getMessage());
             throw new FileOperationException("Error deleting file");
         }
     }
@@ -88,6 +94,7 @@ public class FileStorageService extends MinioAbstractClass {
             
             deleteFile(deleteFileRequest);
         } catch (Exception e) {
+            logger.error("Error renaming file '{}'->'{}': {}", path + oldName, path + newName, e.getMessage());
             throw new FileOperationException("Error renaming file");
         }
     }
@@ -102,6 +109,7 @@ public class FileStorageService extends MinioAbstractClass {
                     .filter(object -> !object.getName().isBlank())
                     .toList();
         } catch (Exception e) {
+            logger.error("Error fetching files with path {}: {}", path, e.getMessage());
             throw new FileOperationException("Error fetching files");
         }
     }
