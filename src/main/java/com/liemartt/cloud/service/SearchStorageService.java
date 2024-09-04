@@ -12,6 +12,7 @@ import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Indexed;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -23,7 +24,7 @@ public class SearchStorageService extends MinioAbstractClass {
     private final Logger logger = LoggerFactory.getLogger(SearchStorageService.class);
     
     public List<SearchResponse> findObjects(String userPrefix, String query) {
-        List<SearchResponse> foundObjects = new ArrayList<>();
+        Set<SearchResponse> foundObjects = new HashSet<>();
         try {
             List<Item> objects = minioUtil
                     .getObjects(userPrefix, true)
@@ -36,12 +37,18 @@ public class SearchStorageService extends MinioAbstractClass {
                 if (objectName.substring(objectName.lastIndexOf("/") + 1).contains(query)) {
                     foundObjects.add(new SearchResponse(object));
                 } else {
-                    int queryIndex = objectName.indexOf(query);
-                    if (queryIndex == -1) {
+                    List<Integer> indexes = findSubstringIndexes(objectName, query);
+                    if (indexes.isEmpty()) {
                         continue;
                     }
-                    String folderPath = objectName.substring(0, objectName.indexOf("/", queryIndex) + 1);
-                    foundObjects.add(new SearchResponse(folderPath));
+                    List<SearchResponse> folders = indexes
+                            .stream()
+                            .map(index -> {
+                                String objectPath = objectName.substring(0, objectName.indexOf("/", index) + 1);
+                                return new SearchResponse(objectPath);
+                            })
+                            .toList();
+                    foundObjects.addAll(folders);
                 }
             }
             return foundObjects.stream()
@@ -52,4 +59,16 @@ public class SearchStorageService extends MinioAbstractClass {
             throw new SearchOperationException("Error searching object with name " + query);
         }
     }
+    
+    private List<Integer> findSubstringIndexes(String path, String substring) {
+        List<Integer> indexes = new ArrayList<>();
+        int index = path.indexOf(substring);
+        while (index != -1) {
+            indexes.add(index);
+            index = path.indexOf(substring, index+1);
+        }
+        return indexes;
+    }
+    
+    
 }

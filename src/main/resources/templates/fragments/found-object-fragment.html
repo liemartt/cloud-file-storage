@@ -33,7 +33,8 @@
         </button>
         <ul class="dropdown-menu">
             <li>
-                <a th:href="@{/(path=${object.path})}" class="dropdown-item"><i class="bi bi-binoculars"></i> Open in explorer</a>
+                <a th:href="@{/(path=${object.path})}" class="dropdown-item" th:if="${!object.isDir}"><i class="bi bi-binoculars" ></i> Open in explorer</a>
+                <a th:href="@{/(path=${object.path})}" class="dropdown-item" th:if="${object.isDir}"><i class="bi bi-binoculars" ></i> Go to folder</a>
             </li>
         </ul>
     </div>

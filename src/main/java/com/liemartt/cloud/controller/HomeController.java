@@ -21,6 +21,8 @@ import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,6 +46,10 @@ public class HomeController {
     public String getHomePage(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                               @RequestParam(required = false, defaultValue = "") String path,
                               Model model) {
+        if (customUserDetails == null) {
+            return "redirect:/welcome";
+        }
+        
         String userPath = PathUtil.addUserPrefix(customUserDetails.getId(), path);
         
         if (!minioUtil.isPathExists(userPath)) {
@@ -72,6 +78,11 @@ public class HomeController {
         model.addAttribute("renameFolderRequest", new RenameFolderRequest());
         model.addAttribute("createFolderRequest", new CreateFolderRequest());
         
+        return "index";
+    }
+    
+    @GetMapping("/welcome")
+    public String getWelcomePage() {
         return "index";
     }
     

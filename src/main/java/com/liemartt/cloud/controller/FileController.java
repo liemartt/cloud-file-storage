@@ -34,7 +34,7 @@ public class FileController {
                                                @ModelAttribute("downloadFileRequest") @Valid DownloadFileRequest request,
                                                BindingResult bindingResult) throws IOException {
         if (bindingResult.hasErrors()) {
-            throw new FileOperationException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
+            throw new FileOperationException(ErrorParser.parseError(bindingResult));
         }
         logger.info("Downloading file '{}' of user {}", request.getFileName(), user.getId());
         
@@ -60,7 +60,7 @@ public class FileController {
                              @ModelAttribute("uploadFileRequest") @Valid UploadFileRequest request,
                              BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new FileOperationException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
+            throw new FileOperationException(ErrorParser.parseError(bindingResult));
         }
         
         logger.info("Uploading file {} for user {}", request.getFile().getOriginalFilename(), user.getId());
@@ -91,6 +91,7 @@ public class FileController {
         String path = request.getPath();
         String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
         request.setPath(pathWithUserPrefix);
+        
         fileStorageService.deleteFile(request);
         
         logger.info("Successfully deleted file '{}' of user {}", request.getFileName(), user.getId());
@@ -109,14 +110,12 @@ public class FileController {
         logger.info("Renaming file '{}' -> '{}' of user {}", request.getOldName(), request.getNewName(), user.getId());
         
         String path = request.getPath();
-        
         String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
         request.setPath(pathWithUserPrefix);
         
         
         String oldName = request.getOldName();
         String fileExtension = oldName.substring(oldName.lastIndexOf(".") + 1);
-        
         String newName = PathUtil.addExtensionToFile(request.getNewName(), fileExtension);
         request.setNewName(newName);
         

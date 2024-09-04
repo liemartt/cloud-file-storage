@@ -53,7 +53,7 @@ public class FolderController {
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             logger.warn("Empty arguments in folder creation request: {}", request);
-            throw new FileOperationException(ErrorParser.parseError(bindingResult)); //todo invalid request exception
+            throw new FileOperationException(ErrorParser.parseError(bindingResult));
         }
         
         logger.info("Creating empty folder with name {} for user {}", request.getFolderName(), user.getId());

@@ -1,0 +1,17 @@
+<header class="fixed-top bg-dark text-white shadow-sm">
+    <div class="container-fluid">
+        <div class="row mt-2 justify-content-between">
+            <div class="d-flex col-auto justify-content-start">
+                <a class="h1 text-decoration-none" href="/">Cloud file storage</a>
+            </div>
+            <div th:if="${username==null}" class="col-auto d-flex align-items-center justify-content-start">
+                <a class="btn btn-primary me-2" href="/login">Log in</a>
+                <a class="btn btn-primary" href="/signup">Sign up</a>
+            </div>
+            <div th:if="${username!=null}" class="col-2 d-flex align-items-center justify-content-end mb-2">
+                <h4 th:text="${username}">liemartt</h4>
+                <a class="btn btn-primary ms-3 text-decoration-none" href="/logout"><i class="bi bi-box-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</header>
