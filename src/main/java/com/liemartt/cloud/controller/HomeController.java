@@ -4,7 +4,14 @@ import com.liemartt.cloud.dto.BreadcrumbLink;
 import com.liemartt.cloud.dto.CustomUserDetails;
 import com.liemartt.cloud.dto.FileResponse;
 import com.liemartt.cloud.dto.FolderResponse;
+import com.liemartt.cloud.dto.file.DeleteFileRequest;
+import com.liemartt.cloud.dto.file.DownloadFileRequest;
+import com.liemartt.cloud.dto.file.RenameFileRequest;
 import com.liemartt.cloud.dto.file.UploadFileRequest;
+import com.liemartt.cloud.dto.folder.CreateFolderRequest;
+import com.liemartt.cloud.dto.folder.DeleteFolderRequest;
+import com.liemartt.cloud.dto.folder.RenameFolderRequest;
+import com.liemartt.cloud.dto.folder.UploadFolderRequest;
 import com.liemartt.cloud.exception.PathNotExistsException;
 import com.liemartt.cloud.service.FileStorageService;
 import com.liemartt.cloud.service.FolderStorageService;
@@ -12,6 +19,8 @@ import com.liemartt.cloud.util.MinioUtil;
 import com.liemartt.cloud.util.PathUtil;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +36,7 @@ import java.util.List;
 public class HomeController {
     private final FileStorageService fileStorageService;
     private final FolderStorageService folderStorageService;
+    private final Logger logger = LoggerFactory.getLogger(HomeController.class);
     private final MinioUtil minioUtil;
     
     
@@ -40,7 +50,7 @@ public class HomeController {
             throw new PathNotExistsException();
         }
         
-        
+        logger.info("Fetching info for user with id {}", customUserDetails.getId());
         List<FolderResponse> userFolders = folderStorageService.getUserFolders(userPath);
         List<FileResponse> userFiles = fileStorageService.getUserFiles(userPath);
         List<BreadcrumbLink> breadcrumbLinks = minioUtil.getBreadcrumbLinks(path);
@@ -53,6 +63,15 @@ public class HomeController {
         model.addAttribute("username", customUserDetails.getUsername());
         
         model.addAttribute("uploadFileRequest", new UploadFileRequest());
+        model.addAttribute("deleteFileRequest", new DeleteFileRequest());
+        model.addAttribute("renameFileRequest", new RenameFileRequest());
+        model.addAttribute("downloadFileRequest", new DownloadFileRequest());
+        
+        model.addAttribute("uploadFolderRequest", new UploadFolderRequest());
+        model.addAttribute("deleteFolderRequest", new DeleteFolderRequest());
+        model.addAttribute("renameFolderRequest", new RenameFolderRequest());
+        model.addAttribute("createFolderRequest", new CreateFolderRequest());
+        
         return "index";
     }
     

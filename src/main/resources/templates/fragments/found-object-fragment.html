@@ -8,7 +8,11 @@
         <i class="bi bi-folder-fill display-4 display-md-3 display-sm-5"></i>
     </span>
 
-    <span th:text="${object.name}" class="d-block text-truncate">
+    <span th:text="${object.name}" class="d-block text-truncate"
+          style="font-size: 0.85rem;"
+          data-bs-toggle="tooltip"
+          data-bs-placement="bottom"
+          th:title="${object.name}">
         File 1
     </span>
 

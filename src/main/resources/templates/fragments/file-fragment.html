@@ -4,7 +4,10 @@
         <i class="bi bi-file-earmark display-4 display-md-3 display-sm-5"></i>
     </span>
     <!-- Название файла -->
-    <span th:text="${file.name}" class="d-block text-truncate">
+    <span th:text="${file.name}" class="d-block text-truncate"
+          data-bs-toggle="tooltip"
+          data-bs-placement="bottom"
+          th:title="${file.name}">
         File 1
     </span>
 
@@ -54,9 +57,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="/files/delete" method="post">
-                        <input type="text" name="path" th:value="${path}" hidden>
-                        <input type="text" name="fileName" th:value="${file.name}" hidden>
+                    <form action="/files/delete" method="post" th:object="${deleteFileRequest}">
+                        <input type="hidden" th:value="${path}" name="path">
+                        <input type="hidden" th:value="${file.name}" name="fileName">
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-primary">Delete</button>
@@ -76,14 +79,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="/files/rename" method="post">
+                    <form action="/files/rename" method="post" th:object="${renameFileRequest}">
                         <div class="mb-3">
                             <label for="newFileName" class="form-label">New File Name</label>
-                            <input type="text" name="path" th:value="${path}" hidden>
+                            <input type="hidden" name="path" th:value="${path}">
                             <input type="hidden" name="oldName" th:value="${file.name}">
-                            <input type="text" class="form-control" id="newFileName" name="newName"
+                            <input type="text" class="form-control" id="newFileName"
                                    th:value="${file.name}"
-                                   placeholder="Enter new file name">
+                                   placeholder="Enter new file name" th:field="*{newName}">
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

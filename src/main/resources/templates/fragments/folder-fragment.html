@@ -5,7 +5,10 @@
     </a>
     <!-- Название папки -->
     <a th:text="${folder.folderName}" th:href="${'/?path='+folder.path}"
-       class="d-block text-decoration-none link-dark text-truncate">
+       class="d-block text-decoration-none link-dark text-truncate"
+       data-bs-toggle="tooltip"
+       data-bs-placement="bottom"
+       th:title="${folder.folderName}">
         Folder 1
     </a>
 
@@ -44,14 +47,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="/folders/rename" method="post">
+                    <form action="/folders/rename" method="post" th:object="${renameFolderRequest}">
                         <div class="mb-3">
                             <label for="newFolderName" class="form-label">New Folder Name</label>
-                            <input type="text" name="path" th:value="${path}" hidden>
-                            <input type="hidden" name="oldName" th:value="${folder.folderName}">
-                            <input type="text" class="form-control" id="newFolderName" name="newName"
+                            <input type="hidden" th:value="${path}" name="path">
+                            <input type="hidden" th:value="${folder.folderName}" name="oldName">
+                            <input type="text" class="form-control" id="newFolderName"
                                    th:value="${folder.folderName}"
-                                   placeholder="Enter new folder name">
+                                   placeholder="Enter new folder name" th:field="*{newName}">
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -74,9 +77,9 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form action="/folders/delete" method="post">
-                        <input type="text" name="path" th:value="${path}" hidden>
-                        <input type="text" name="folderName" th:value="${folder.folderName}" hidden>
+                    <form action="/folders/delete" method="post" th:object="${deleteFolderRequest}">
+                        <input type="hidden" th:value="${path}" name="path">
+                        <input type="hidden" th:value="${folder.folderName}" name="folderName">
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" class="btn btn-primary">Delete</button>

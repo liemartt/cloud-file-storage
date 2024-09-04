@@ -3,6 +3,7 @@ package com.liemartt.cloud.service;
 import com.liemartt.cloud.dto.SearchResponse;
 import com.liemartt.cloud.exception.SearchOperationException;
 import com.liemartt.cloud.util.MinioUtil;
+import com.liemartt.cloud.util.PathUtil;
 import io.minio.GetObjectArgs;
 import io.minio.ListObjectsArgs;
 import io.minio.MinioClient;
@@ -11,8 +12,7 @@ import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -20,17 +20,35 @@ public class SearchStorageService extends MinioAbstractClass {
     private final MinioUtil minioUtil;
     
     public List<SearchResponse> findObjects(String userPrefix, String query) {
-        List<Item> objects = minioUtil
-                .getObjects(userPrefix, true);
-        objects.forEach(object-> System.out.println(object.objectName()));
+        List<SearchResponse> foundObjects = new ArrayList<>();
         try {
-            return objects
+            List<Item> objects = minioUtil
+                    .getObjects(userPrefix, true)
                     .stream()
                     .filter(item -> item.objectName().contains(query))
-                    .map(SearchResponse::new)
+                    .toList();
+            
+            for (Item object : objects) {
+                String objectName = object.objectName();
+                if (objectName.substring(objectName.lastIndexOf("/") + 1).contains(query)) {
+                    foundObjects.add(new SearchResponse(object));
+                } else {
+                    int queryIndex = objectName.indexOf(query);
+                    if (queryIndex == -1) {
+                        continue;
+                    }
+                    String folderPath = objectName.substring(0, objectName.indexOf("/", queryIndex) + 1);
+                    foundObjects.add(new SearchResponse(folderPath));
+                }
+            }
+            return foundObjects.stream()
+                    .sorted(Comparator.comparing(SearchResponse::isDir))
                     .toList();
         } catch (Exception e) {
             throw new SearchOperationException("Error searching object with name " + query);
         }
+        //TODO bug with folder search
+        //tip - need to split all names by / and then collect into hashset
+        
     }
 }

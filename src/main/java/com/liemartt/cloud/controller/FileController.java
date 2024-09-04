@@ -97,7 +97,7 @@ public class FileController {
         
         
         String oldName = request.getOldName();
-        String fileExtension = oldName.substring(oldName.lastIndexOf("."));
+        String fileExtension = oldName.substring(oldName.lastIndexOf(".")+1);
         
         String newName = PathUtil.addExtensionToFile(request.getNewName(), fileExtension);
         request.setNewName(newName);

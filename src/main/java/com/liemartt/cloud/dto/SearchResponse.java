@@ -5,7 +5,6 @@ import io.minio.messages.Item;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.nio.file.Path;
 
 @Data
 @AllArgsConstructor
@@ -18,5 +17,11 @@ public class SearchResponse {
         this.name = PathUtil.extractObjectName(item.objectName());
         this.path = PathUtil.extractPathToObject(item.objectName());
         this.isDir = item.isDir();
+    }
+    
+    public SearchResponse(String fullName) {
+        this.name = PathUtil.extractObjectName(fullName);
+        this.path = PathUtil.extractPathToObject(fullName);
+        this.isDir = true;
     }
 }

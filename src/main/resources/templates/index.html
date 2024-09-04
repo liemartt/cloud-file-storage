@@ -51,9 +51,9 @@
     <div th:if="${username!=null}" class="container-fluid h-100 pt-2">
         <!-- Search input -->
         <div class="d-flex justify-content-center mt-5 mb-3">
-            <form action="/search" method="get" class="input-group mb-3 w-50">
+            <form action="/search" method="get" class="input-group mb-3 w-50" >
                 <input type="text" class="form-control border border-secondary text-secondary"
-                       placeholder="Search files" name = "query" required>
+                       placeholder="Search files" name="query" required>
                 <button class="btn btn-outline-secondary" type="submit" id="button-addon2"><i
                         class="bi bi-search"></i></button>
             </form>
@@ -74,20 +74,20 @@
             <div class="d-flex justify-content-start pt-2">
 
                 <!--Upload file button-->
-                <form method="post" action="/files/upload" enctype="multipart/form-data">
-                    <input type="file" name="file" id="fileInput" style="display:none;"
-                           onchange="this.form.submit()">
-                    <input type="hidden" name="path" th:value="${path}">
+                <form method="post" action="/files/upload" enctype="multipart/form-data" th:object="${uploadFileRequest}">
+                    <input type="file" id="fileInput" style="display:none;"
+                           onchange="this.form.submit()" th:field="*{file}">
+                    <input type="hidden" th:value="${path}" th:field="*{path}">
                     <button type="button" class="btn btn-primary"
                             onclick="document.getElementById('fileInput').click();">Upload File
                     </button>
 
                 </form>
                 <!--Upload folder button-->
-                <form method="post" action="/folders/upload" enctype="multipart/form-data" class="ms-2">
-                    <input type="file" name="folder" id="folderInput" webkitdirectory style="display:none;"
-                           onchange="this.form.submit()">
-                    <input type="hidden" name="path" th:value="${path}">
+                <form method="post" action="/folders/upload" enctype="multipart/form-data" class="ms-2" th:object="${uploadFolderRequest}">
+                    <input type="file" id="folderInput" webkitdirectory style="display:none;"
+                           onchange="this.form.submit()" th:field="*{folder}">
+                    <input type="hidden" th:value="${path}" th:field="*{path}">
                     <button type="button" class="btn btn-primary"
                             onclick="document.getElementById('folderInput').click();">Upload Folder
                     </button>
@@ -107,12 +107,12 @@
                                         aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form action="/folders/create" method="post">
+                                <form action="/folders/create" method="post" th:object="${createFolderRequest}">
                                     <div class="mb-3">
                                         <label for="folderName" class="form-label">Folder Name</label>
-                                        <input type="text" name="path" th:value="${path}" hidden>
+                                        <input type="text" name="path" th:value="${path}" hidden th:field="*{path}">
                                         <input type="text" class="form-control" id="folderName" name="folderName"
-                                               placeholder="Enter folder name">
+                                               placeholder="Enter folder name" th:field="*{folderName}">
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel
@@ -177,6 +177,13 @@
 
 
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
+
     const dropAreaFolder = document.getElementById('drop-area-folder');
     const folderInput = document.getElementById('folderElem');
     const dropAreaFiles = document.getElementById('drop-area-files');
