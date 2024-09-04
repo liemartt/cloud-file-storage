@@ -31,6 +31,8 @@
             from anywhere</p>
     </div>
     <div th:if="${username!=null}" class="container-fluid h-100 pt-2">
+
+
         <!-- Search input -->
         <div class="d-flex justify-content-center mt-5 mb-3">
             <form action="/search" method="get" class="input-group mb-3 w-50">
@@ -39,6 +41,10 @@
                 <button class="btn btn-outline-secondary" type="submit" id="button-addon2"><i
                         class="bi bi-search"></i></button>
             </form>
+        </div>
+
+        <div th:if="${message!=null}" class = "d-flex justify-content-center">
+            <p class="text-center alert alert-danger" th:text="${message}"></p>
         </div>
 
         <!-- Main block -->

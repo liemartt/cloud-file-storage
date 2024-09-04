@@ -1,7 +1,6 @@
 package com.liemartt.cloud;
 
-import com.liemartt.cloud.exception.InvalidUserSignUpRequestException;
-import com.liemartt.cloud.exception.UsernameAlreadyExistsException;
+import com.liemartt.cloud.exception.*;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -19,5 +18,20 @@ public class CloudControllerAdvice {
     public RedirectView handleInvalidUserRequestException(InvalidUserSignUpRequestException e, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("message", e.getMessage());
         return new RedirectView("/signup");
+    }
+    @ExceptionHandler(FileOperationException.class)
+    public RedirectView handleFileOperationException(FileOperationException e, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("message", e.getMessage());
+        return new RedirectView("/");
+    }
+    @ExceptionHandler(FolderOperationException.class)
+    public RedirectView handleFolderOperationException(FolderOperationException e, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("message", e.getMessage());
+        return new RedirectView("/");
+    }
+    @ExceptionHandler(SearchOperationException.class)
+    public RedirectView handleSearchOperationException(SearchOperationException e, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("message", e.getMessage());
+        return new RedirectView("/");
     }
 }
