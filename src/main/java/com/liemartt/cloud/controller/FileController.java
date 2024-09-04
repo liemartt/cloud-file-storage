@@ -7,7 +7,7 @@ import com.liemartt.cloud.dto.file.RenameFileRequest;
 import com.liemartt.cloud.dto.file.UploadFileRequest;
 import com.liemartt.cloud.exception.FileOperationException;
 import com.liemartt.cloud.service.FileStorageService;
-import com.liemartt.cloud.util.ErrorParser;
+import com.liemartt.cloud.util.ErrorUtil;
 import com.liemartt.cloud.util.PathUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class FileController {
                                                @ModelAttribute("downloadFileRequest") @Valid DownloadFileRequest request,
                                                BindingResult bindingResult) throws IOException {
         if (bindingResult.hasErrors()) {
-            throw new FileOperationException(ErrorParser.parseError(bindingResult));
+            throw new FileOperationException(ErrorUtil.parseError(bindingResult));
         }
         logger.info("Downloading file '{}' of user {}", request.getFileName(), user.getId());
         
@@ -60,7 +60,7 @@ public class FileController {
                              @ModelAttribute("uploadFileRequest") @Valid UploadFileRequest request,
                              BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new FileOperationException(ErrorParser.parseError(bindingResult));
+            throw new FileOperationException(ErrorUtil.parseError(bindingResult));
         }
         
         logger.info("Uploading file {} for user {}", request.getFile().getOriginalFilename(), user.getId());
@@ -83,7 +83,7 @@ public class FileController {
                              @ModelAttribute("deleteFileRequest") @Valid DeleteFileRequest request,
                              BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new FileOperationException(ErrorParser.parseError(bindingResult));
+            throw new FileOperationException(ErrorUtil.parseError(bindingResult));
         }
         
         logger.info("Deleting file '{}' of user {}", request.getFileName(), user.getId());
@@ -104,7 +104,7 @@ public class FileController {
                              @ModelAttribute("renameFileRequest") @Valid RenameFileRequest request,
                              BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new FileOperationException(ErrorParser.parseError(bindingResult));
+            throw new FileOperationException(ErrorUtil.parseError(bindingResult));
         }
         
         logger.info("Renaming file '{}' -> '{}' of user {}", request.getOldName(), request.getNewName(), user.getId());

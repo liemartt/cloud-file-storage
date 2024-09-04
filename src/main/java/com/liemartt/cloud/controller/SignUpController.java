@@ -3,7 +3,7 @@ package com.liemartt.cloud.controller;
 import com.liemartt.cloud.dto.UserDto;
 import com.liemartt.cloud.exception.InvalidUserSignUpRequestException;
 import com.liemartt.cloud.service.AuthenticationService;
-import com.liemartt.cloud.util.ErrorParser;
+import com.liemartt.cloud.util.ErrorUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -27,7 +27,7 @@ public class SignUpController {
     @PostMapping
     public String processSignUp(@ModelAttribute("userDto") @Valid UserDto userDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            throw new InvalidUserSignUpRequestException(ErrorParser.parseError(bindingResult));
+            throw new InvalidUserSignUpRequestException(ErrorUtil.parseError(bindingResult));
         }
         authenticationService.signUp(userDto);
         

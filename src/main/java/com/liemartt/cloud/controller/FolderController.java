@@ -7,7 +7,7 @@ import com.liemartt.cloud.dto.folder.RenameFolderRequest;
 import com.liemartt.cloud.dto.folder.UploadFolderRequest;
 import com.liemartt.cloud.exception.FileOperationException;
 import com.liemartt.cloud.service.FolderStorageService;
-import com.liemartt.cloud.util.ErrorParser;
+import com.liemartt.cloud.util.ErrorUtil;
 import com.liemartt.cloud.util.PathUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class FolderController {
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             logger.warn("Empty arguments in folder upload request: {}", request);
-            throw new FileOperationException(ErrorParser.parseError(bindingResult));
+            throw new FileOperationException(ErrorUtil.parseError(bindingResult));
         }
         
         logger.info("Uploading folder with files [{}] for user {}", request.getFolder(), user.getId());
@@ -53,7 +53,7 @@ public class FolderController {
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             logger.warn("Empty arguments in folder creation request: {}", request);
-            throw new FileOperationException(ErrorParser.parseError(bindingResult));
+            throw new FileOperationException(ErrorUtil.parseError(bindingResult));
         }
         
         logger.info("Creating empty folder with name {} for user {}", request.getFolderName(), user.getId());
@@ -78,7 +78,7 @@ public class FolderController {
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             logger.warn("Empty arguments in delete folder request {}", request);
-            throw new FileOperationException(ErrorParser.parseError(bindingResult));
+            throw new FileOperationException(ErrorUtil.parseError(bindingResult));
         }
         logger.info("Deleting folder {} of user {}", request.getFolderName(), user.getId());
         
@@ -99,7 +99,7 @@ public class FolderController {
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             logger.warn("Empty rename folder request arguments {}", request);
-            throw new FileOperationException(ErrorParser.parseError(bindingResult));
+            throw new FileOperationException(ErrorUtil.parseError(bindingResult));
         }
         
         logger.info("Renaming folder '{}'->'{}' for user {}", request.getOldName(), request.getNewName(), user.getId());
