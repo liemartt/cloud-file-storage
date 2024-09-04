@@ -10,6 +10,8 @@ import io.minio.MinioClient;
 import io.minio.Result;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -18,6 +20,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SearchStorageService extends MinioAbstractClass {
     private final MinioUtil minioUtil;
+    private final Logger logger = LoggerFactory.getLogger(SearchStorageService.class);
     
     public List<SearchResponse> findObjects(String userPrefix, String query) {
         List<SearchResponse> foundObjects = new ArrayList<>();
@@ -45,10 +48,8 @@ public class SearchStorageService extends MinioAbstractClass {
                     .sorted(Comparator.comparing(SearchResponse::isDir))
                     .toList();
         } catch (Exception e) {
+            logger.error("Error searching objects for query {}: {}", query, e.getMessage());
             throw new SearchOperationException("Error searching object with name " + query);
         }
-        //TODO bug with folder search
-        //tip - need to split all names by / and then collect into hashset
-        
     }
 }
