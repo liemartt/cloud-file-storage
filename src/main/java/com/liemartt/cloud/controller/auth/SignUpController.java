@@ -1,4 +1,4 @@
-package com.liemartt.cloud.controller;
+package com.liemartt.cloud.controller.auth;
 
 import com.liemartt.cloud.dto.UserDto;
 import com.liemartt.cloud.exception.InvalidUserSignUpRequestException;

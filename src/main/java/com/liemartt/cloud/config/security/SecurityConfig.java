@@ -1,4 +1,4 @@
-package com.liemartt.cloud.config;
+package com.liemartt.cloud.config.security;
 
 import com.liemartt.cloud.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)//TODO implement csrf tokens
+                .csrf(AbstractHttpConfigurer::disable) //TODO implement csrf tokens
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/login", "/signup", "/welcome", "/")
                         .permitAll()

@@ -1,18 +1,11 @@
-package com.liemartt.cloud.service;
+package com.liemartt.cloud.service.minio;
 
 import com.liemartt.cloud.dto.SearchResponse;
 import com.liemartt.cloud.exception.SearchOperationException;
-import com.liemartt.cloud.util.MinioUtil;
-import com.liemartt.cloud.util.PathUtil;
-import io.minio.GetObjectArgs;
-import io.minio.ListObjectsArgs;
-import io.minio.MinioClient;
-import io.minio.Result;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Indexed;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -20,13 +13,13 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class SearchStorageService extends MinioAbstractClass {
-    private final MinioUtil minioUtil;
+    private final MinioService minioService;
     private final Logger logger = LoggerFactory.getLogger(SearchStorageService.class);
     
     public List<SearchResponse> findObjects(String userPrefix, String query) {
         Set<SearchResponse> foundObjects = new HashSet<>();
         try {
-            List<Item> objects = minioUtil
+            List<Item> objects = minioService
                     .getObjects(userPrefix, true)
                     .stream()
                     .filter(item -> item.objectName().contains(query))

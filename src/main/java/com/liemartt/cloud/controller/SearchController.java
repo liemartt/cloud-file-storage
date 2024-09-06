@@ -1,8 +1,8 @@
 package com.liemartt.cloud.controller;
 
-import com.liemartt.cloud.dto.CustomUserDetails;
+import com.liemartt.cloud.config.security.CustomUserDetails;
 import com.liemartt.cloud.dto.SearchResponse;
-import com.liemartt.cloud.service.SearchStorageService;
+import com.liemartt.cloud.service.minio.SearchStorageService;
 import com.liemartt.cloud.util.PathUtil;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -11,12 +11,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-import java.util.Set;
 
 @Controller
 @RequiredArgsConstructor

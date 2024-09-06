@@ -1,4 +1,4 @@
-package com.liemartt.cloud.dto;
+package com.liemartt.cloud.config.security;
 
 import com.liemartt.cloud.entity.User;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package com.liemartt.cloud.service;
+package com.liemartt.cloud.service.minio;
 
 import com.liemartt.cloud.dto.FolderResponse;
 import com.liemartt.cloud.dto.file.DeleteFileRequest;
@@ -9,8 +9,6 @@ import com.liemartt.cloud.dto.folder.DeleteFolderRequest;
 import com.liemartt.cloud.dto.folder.RenameFolderRequest;
 import com.liemartt.cloud.dto.folder.UploadFolderRequest;
 import com.liemartt.cloud.exception.FolderOperationException;
-import com.liemartt.cloud.util.FileSizeUtil;
-import com.liemartt.cloud.util.MinioUtil;
 import io.minio.*;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
@@ -20,18 +18,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class FolderStorageService extends MinioAbstractClass {
     private final MinioClient minioClient;
     private final FileStorageService fileStorageService;
-    private final MinioUtil minioUtil;
+    private final MinioService minioService;
     private final Logger logger = LoggerFactory.getLogger(FolderStorageService.class);
     
     public void createFolder(CreateFolderRequest request) {
@@ -73,7 +69,7 @@ public class FolderStorageService extends MinioAbstractClass {
         String newPathToFiles = path + newName;
         
         try {
-            List<Item> items = minioUtil.getObjects(oldPathToFiles, true);
+            List<Item> items = minioService.getObjects(oldPathToFiles, true);
             for (Item item : items) {
                 String oldObjectName = item.objectName();
                 String newObjectName = oldObjectName.replaceFirst(oldPathToFiles, newPathToFiles);
@@ -97,7 +93,7 @@ public class FolderStorageService extends MinioAbstractClass {
         String pathToFiles = path + folderName + "/";
         
         try {
-            List<Item> items = minioUtil.getObjects(pathToFiles, true);
+            List<Item> items = minioService.getObjects(pathToFiles, true);
             
             for (Item item : items) {
                 String objectName = item.objectName();
@@ -114,7 +110,7 @@ public class FolderStorageService extends MinioAbstractClass {
     
     public List<FolderResponse> getUserFolders(String path) {
         try {
-            List<Item> items = minioUtil.getObjects(path, false);
+            List<Item> items = minioService.getObjects(path, false);
             return items.stream()
                     .filter(Item::isDir)
                     .map(FolderResponse::new)

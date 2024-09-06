@@ -1,4 +1,4 @@
-package com.liemartt.cloud.service;
+package com.liemartt.cloud.service.minio;
 
 import org.springframework.beans.factory.annotation.Value;
 

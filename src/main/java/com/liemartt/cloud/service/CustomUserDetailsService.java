@@ -1,6 +1,6 @@
 package com.liemartt.cloud.service;
 
-import com.liemartt.cloud.dto.CustomUserDetails;
+import com.liemartt.cloud.config.security.CustomUserDetails;
 import com.liemartt.cloud.entity.User;
 import com.liemartt.cloud.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -8,8 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

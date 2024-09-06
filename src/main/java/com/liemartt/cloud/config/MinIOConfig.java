@@ -4,7 +4,6 @@ import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.errors.*;
-import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,12 +16,18 @@ import java.security.NoSuchAlgorithmException;
 public class MinIOConfig {
     @Value("${minio.bucket.name}")
     private String bucketName;
+    @Value("${minio.client.accesskey}")
+    private String minioAccessKey;
+    @Value("${minio.client.secretkey}")
+    private String minioSecretKey;
+    @Value("${minio.client.endpoint}")
+    private String minioEndpoint;
     
     @Bean
     public MinioClient minioClient() throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         MinioClient minioClient = MinioClient.builder()
-                .endpoint("http://localhost:9000")
-                .credentials("sFAT9yhttM0JtdL3e7Nu", "H0kHxFbJCCWeQMaMFU5Yd2QfHY67ZPyVUqx98JHM")
+                .endpoint(minioEndpoint)
+                .credentials(minioAccessKey, minioSecretKey)
                 .build();
         
         if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucketName).build())) {

@@ -31,6 +31,7 @@ repositories {
 }
 
 dependencies {
+    implementation ("me.paulschwarz:spring-dotenv:4.0.0")
     implementation ("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")

@@ -1,13 +1,13 @@
 package com.liemartt.cloud.controller;
 
-import com.liemartt.cloud.dto.CustomUserDetails;
+import com.liemartt.cloud.config.security.CustomUserDetails;
 import com.liemartt.cloud.dto.folder.CreateFolderRequest;
 import com.liemartt.cloud.dto.folder.DeleteFolderRequest;
 import com.liemartt.cloud.dto.folder.RenameFolderRequest;
 import com.liemartt.cloud.dto.folder.UploadFolderRequest;
 import com.liemartt.cloud.exception.FileOperationException;
-import com.liemartt.cloud.service.FolderStorageService;
-import com.liemartt.cloud.service.UserMemoryService;
+import com.liemartt.cloud.service.minio.FolderStorageService;
+import com.liemartt.cloud.service.minio.UserMemoryService;
 import com.liemartt.cloud.util.ErrorUtil;
 import com.liemartt.cloud.util.PathUtil;
 import jakarta.validation.Valid;
@@ -32,7 +32,6 @@ public class FolderController {
                                @ModelAttribute("uploadFolderRequest") @Valid UploadFolderRequest request,
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            logger.warn("Empty arguments in folder upload request: {}", request);
             throw new FileOperationException(ErrorUtil.parseError(bindingResult));
         }
         
@@ -56,7 +55,6 @@ public class FolderController {
                                @ModelAttribute("createFolderRequest") @Valid CreateFolderRequest request,
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            logger.warn("Empty arguments in folder creation request: {}", request);
             throw new FileOperationException(ErrorUtil.parseError(bindingResult));
         }
         
@@ -81,9 +79,9 @@ public class FolderController {
                                @ModelAttribute("deleteFolderRequest") @Valid DeleteFolderRequest request,
                                BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            logger.warn("Empty arguments in delete folder request {}", request);
             throw new FileOperationException(ErrorUtil.parseError(bindingResult));
         }
+        
         logger.info("Deleting folder {} of user {}", request.getFolderName(), user.getId());
         
         String path = request.getPath();

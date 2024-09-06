@@ -1,4 +1,4 @@
-package com.liemartt.cloud.service;
+package com.liemartt.cloud.service.minio;
 
 import com.liemartt.cloud.dto.FileResponse;
 import com.liemartt.cloud.dto.file.DeleteFileRequest;
@@ -6,7 +6,6 @@ import com.liemartt.cloud.dto.file.DownloadFileRequest;
 import com.liemartt.cloud.dto.file.RenameFileRequest;
 import com.liemartt.cloud.dto.file.UploadFileRequest;
 import com.liemartt.cloud.exception.FileOperationException;
-import com.liemartt.cloud.util.MinioUtil;
 import io.minio.*;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileStorageService extends MinioAbstractClass {
     private final MinioClient minioClient;
-    private final MinioUtil minioUtil;
+    private final MinioService minioService;
     private final Logger logger = LoggerFactory.getLogger(FileStorageService.class);
     
     public InputStream downloadFile(DownloadFileRequest request) {
@@ -101,7 +100,7 @@ public class FileStorageService extends MinioAbstractClass {
     
     public List<FileResponse> getUserFiles(String path) {
         try {
-            List<Item> items = minioUtil.getObjects(path, false);
+            List<Item> items = minioService.getObjects(path, false);
             return items.stream()
                     .filter(item -> !item.isDir())
                     .sorted(Comparator.comparing(Item::lastModified).reversed())

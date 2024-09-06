@@ -1,8 +1,7 @@
-package com.liemartt.cloud.util;
+package com.liemartt.cloud.service.minio;
 
 import com.liemartt.cloud.dto.BreadcrumbLink;
 import com.liemartt.cloud.exception.InternalServiceException;
-import com.liemartt.cloud.service.MinioAbstractClass;
 import io.minio.ListObjectsArgs;
 import io.minio.MinioClient;
 import io.minio.Result;
@@ -10,14 +9,12 @@ import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
-public class MinioUtil extends MinioAbstractClass {
+public class MinioService extends MinioAbstractClass {
     private final MinioClient minioClient;
     
     public List<Item> getObjects(String path, boolean recursive) {
@@ -58,12 +55,6 @@ public class MinioUtil extends MinioAbstractClass {
             }
         }
         return links;
-    }
-    
-    public BigDecimal getUserFilesSize(String userPrefix) {
-        List<Item> items = getObjects(userPrefix, true);
-        Optional<Long> reduce = items.stream().map(Item::size).reduce(Long::sum);
-        return FileSizeUtil.mapByteToMb(reduce.orElse(0L));
     }
     
 }
