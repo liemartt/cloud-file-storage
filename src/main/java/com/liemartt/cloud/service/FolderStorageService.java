@@ -9,6 +9,7 @@ import com.liemartt.cloud.dto.folder.DeleteFolderRequest;
 import com.liemartt.cloud.dto.folder.RenameFolderRequest;
 import com.liemartt.cloud.dto.folder.UploadFolderRequest;
 import com.liemartt.cloud.exception.FolderOperationException;
+import com.liemartt.cloud.util.FileSizeUtil;
 import com.liemartt.cloud.util.MinioUtil;
 import io.minio.*;
 import io.minio.messages.Item;
@@ -19,9 +20,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -123,6 +126,7 @@ public class FolderStorageService extends MinioAbstractClass {
             throw new FolderOperationException("Error fetching folders");
         }
     }
+    
     
     
 }

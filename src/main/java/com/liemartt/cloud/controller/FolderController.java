@@ -7,6 +7,7 @@ import com.liemartt.cloud.dto.folder.RenameFolderRequest;
 import com.liemartt.cloud.dto.folder.UploadFolderRequest;
 import com.liemartt.cloud.exception.FileOperationException;
 import com.liemartt.cloud.service.FolderStorageService;
+import com.liemartt.cloud.service.UserMemoryService;
 import com.liemartt.cloud.util.ErrorUtil;
 import com.liemartt.cloud.util.PathUtil;
 import jakarta.validation.Valid;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class FolderController {
     private final FolderStorageService folderStorageService;
+    private final UserMemoryService userMemoryService;
     private final Logger logger = LoggerFactory.getLogger(FolderController.class);
     
     @PostMapping("/upload")
@@ -39,6 +41,8 @@ public class FolderController {
         String path = request.getPath();
         String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
         request.setPath(pathWithUserPrefix);
+        
+        userMemoryService.checkUserMemory(pathWithUserPrefix, request.getFolder());
         
         folderStorageService.uploadFolder(request);
         

@@ -10,8 +10,10 @@ import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -56,6 +58,12 @@ public class MinioUtil extends MinioAbstractClass {
             }
         }
         return links;
+    }
+    
+    public BigDecimal getUserFilesSize(String userPrefix) {
+        List<Item> items = getObjects(userPrefix, true);
+        Optional<Long> reduce = items.stream().map(Item::size).reduce(Long::sum);
+        return FileSizeUtil.mapByteToMb(reduce.orElse(0L));
     }
     
 }

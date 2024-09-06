@@ -1,16 +1,43 @@
 <header class="fixed-top bg-dark text-white shadow-sm">
     <div class="container-fluid">
-        <div class="row mt-2 justify-content-between">
-            <div class="d-flex col-auto justify-content-start">
-                <a class="h1 text-decoration-none" href="/">Cloud file storage</a>
+        <div class="row align-items-center justify-content-between">
+            <!-- Логотип или Название -->
+            <div class="col-auto mb-2 d-flex align-items-center">
+                <!-- Заголовок для больших экранов -->
+                <a class="h1 text-decoration-none text-white me-4 d-none d-md-block" href="/">Cloud File Storage</a>
+
+                <!-- Заголовок для мобильных устройств -->
+                <a class="h3 text-decoration-none text-white d-md-none" href="/">Cloud storage</a>
+
+                <!-- Информация о хранилище рядом с заголовком -->
+                <div class="bg-info text-dark rounded px-3 py-1 shadow-sm d-none d-md-block" th:if="${filesSize!=null}">
+                    <i class="bi bi-hdd fs-5 me-2"></i>
+                    <span class="fs-6">Storage Used: <strong th:text="${filesSize}">150 MB</strong> of 500 MB</span>
+                </div>
             </div>
-            <div th:if="${username==null}" class="col-auto d-flex align-items-center justify-content-start">
-                <a class="btn btn-primary me-2" href="/login">Log in</a>
-                <a class="btn btn-primary" href="/signup">Sign up</a>
+
+            <!-- Логин/Логаут кнопки -->
+            <div class="col-auto d-flex align-items-center justify-content-between">
+                <div th:if="${username == null}">
+                    <a class="btn btn-primary me-2" href="/login">Log In</a>
+                    <a class="btn btn-primary" href="/signup">Sign Up</a>
+                </div>
+                <div th:if="${username != null}" class="d-flex align-items-center">
+                    <h4 class="mb-0 me-3" th:text="${username}">liemartt</h4>
+                    <a class="btn btn-primary text-decoration-none" href="/logout">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </a>
+                </div>
             </div>
-            <div th:if="${username!=null}" class="col-2 d-flex align-items-center justify-content-end mb-2">
-                <h4 th:text="${username}">liemartt</h4>
-                <a class="btn btn-primary ms-3 text-decoration-none" href="/logout"><i class="bi bi-box-arrow-right"></i></a>
+        </div>
+
+        <!-- Информация о хранилище для мобильных устройств -->
+        <div class="row d-md-none mt-2 mb-2" th:if="${filesSize!=null}">
+            <div class="col text-center">
+                <div class="bg-info text-dark rounded px-3 py-1 shadow-sm">
+                    <i class="bi bi-hdd fs-5 me-2"></i>
+                    <span class="fs-6">Storage Used: <strong th:text="${filesSize}">150 MB</strong> of 500 MB</span>
+                </div>
             </div>
         </div>
     </div>

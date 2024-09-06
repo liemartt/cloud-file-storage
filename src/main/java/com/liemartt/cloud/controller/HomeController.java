@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.swing.plaf.basic.BasicIconFactory;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Controller
@@ -60,6 +62,7 @@ public class HomeController {
         List<FolderResponse> userFolders = folderStorageService.getUserFolders(userPath);
         List<FileResponse> userFiles = fileStorageService.getUserFiles(userPath);
         List<BreadcrumbLink> breadcrumbLinks = minioUtil.getBreadcrumbLinks(path);
+        BigDecimal filesSize = minioUtil.getUserFilesSize(userPath);
         
         
         model.addAttribute("path", path);
@@ -67,6 +70,8 @@ public class HomeController {
         model.addAttribute("folders", userFolders);
         model.addAttribute("breadcrumbLinks", breadcrumbLinks);
         model.addAttribute("username", customUserDetails.getUsername());
+        model.addAttribute("filesSize", filesSize);
+        model.addAttribute("freeSpace", 500);
         
         model.addAttribute("uploadFileRequest", new UploadFileRequest());
         model.addAttribute("deleteFileRequest", new DeleteFileRequest());

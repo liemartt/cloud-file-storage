@@ -1,9 +1,9 @@
 <div class="text-center" style="width: 120px">
-    <!-- Иконка папки -->
+
     <a th:href="${'/?path='+folder.path}" class="text-decoration-none link-dark d-block text">
         <i class="bi bi-folder-fill display-4 display-md-3 display-sm-5"></i>
     </a>
-    <!-- Название папки -->
+
     <a th:text="${folder.folderName}" th:href="${'/?path='+folder.path}"
        class="d-block text-decoration-none link-dark text-truncate"
        data-bs-toggle="tooltip"
@@ -12,7 +12,7 @@
         Folder 1
     </a>
 
-    <!-- Кнопка действий с папкой -->
+
     <div class="mt-2">
 
         <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false">
@@ -20,7 +20,7 @@
         </button>
         <ul class="dropdown-menu">
             <li>
-                <!-- Кнопка для открытия модального окна -->
+
                 <button type="button" class="dropdown-item" data-bs-toggle="modal"
                         th:attr="data-bs-target='#renameFolderModal-'+${stat.index}">
                     <i class="bi bi-pencil"></i> Rename
@@ -54,7 +54,7 @@
                             <input type="hidden" th:value="${folder.folderName}" name="oldName">
                             <input type="text" class="form-control" id="newFolderName"
                                    th:value="${folder.folderName}"
-                                   placeholder="Enter new folder name" th:field="*{newName}">
+                                   placeholder="Enter new folder name" name="newName">
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

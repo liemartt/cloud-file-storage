@@ -6,8 +6,12 @@ import com.liemartt.cloud.dto.file.DownloadFileRequest;
 import com.liemartt.cloud.dto.file.RenameFileRequest;
 import com.liemartt.cloud.dto.file.UploadFileRequest;
 import com.liemartt.cloud.exception.FileOperationException;
+import com.liemartt.cloud.exception.NotEnoughSpaceException;
 import com.liemartt.cloud.service.FileStorageService;
+import com.liemartt.cloud.service.UserMemoryService;
 import com.liemartt.cloud.util.ErrorUtil;
+import com.liemartt.cloud.util.FileSizeUtil;
+import com.liemartt.cloud.util.MinioUtil;
 import com.liemartt.cloud.util.PathUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,12 +25,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 
 @Controller
 @RequestMapping("/files")
 @RequiredArgsConstructor
 public class FileController {
     private final FileStorageService fileStorageService;
+    private final UserMemoryService userMemoryService;
     private final Logger logger = LoggerFactory.getLogger(FileController.class);
     
     @GetMapping("/download")
@@ -63,11 +69,14 @@ public class FileController {
             throw new FileOperationException(ErrorUtil.parseError(bindingResult));
         }
         
+        
         logger.info("Uploading file {} for user {}", request.getFile().getOriginalFilename(), user.getId());
         
         String path = request.getPath();
         String pathWithUserPrefix = PathUtil.addUserPrefix(user.getId(), path);
         request.setPath(pathWithUserPrefix);
+        
+        userMemoryService.checkUserMemory(pathWithUserPrefix, request.getFile());
         
         fileStorageService.uploadFile(request);
         

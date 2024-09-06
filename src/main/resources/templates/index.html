@@ -9,14 +9,16 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     <style>
         .drop-area {
-            /*position: relative;*/
             transition: background-color 0.3s;
         }
 
         .drop-area.dragover {
             background-color: #d1e7fd;
-            /* Светло-синий цвет при наведении */
             border-color: #007bff;
+        }
+        .tooltip-inner {
+            max-width: none;
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -31,7 +33,6 @@
             from anywhere</p>
     </div>
     <div th:if="${username!=null}" class="container-fluid h-100 pt-2">
-
 
         <!-- Search input -->
         <div class="d-flex justify-content-center mt-5 mb-3">
@@ -87,6 +88,7 @@
                         data-bs-target="#createFolder">
                     Create Folder
                 </button>
+
                 <div class="modal fade" id="createFolder" tabindex="-1" aria-labelledby="createFolderModalLabel"
                      aria-hidden="true">
                     <div class="modal-dialog">
@@ -114,7 +116,9 @@
                         </div>
                     </div>
                 </div>
+
             </div>
+
 
 
             <div class="d-flex row justify-content-center mt-3">
@@ -127,7 +131,6 @@
                         <input type="file" name="folder" id="folderElem" webkitdirectory directory hidden>
                     </form>
 
-                    <!-- Сетка папок -->
                     <div class="d-flex flex-wrap justify-content-start rounded border border-primary drop-area"
                          id="drop-area-folder">
                         <div th:each="folder, stat:${folders}" class="d-flex flex-column align-items-center m-2 p-2"
@@ -146,7 +149,7 @@
                     </form>
                     <div class="d-flex flex-wrap justify-content-start rounded border border-primary drop-area"
                          id="drop-area-files">
-                        <!-- Пример элемента файла -->
+
                         <div th:each="file, stat:${files}" class="d-flex flex-column align-items-center m-2 p-2"
                              style="width: 120px;">
                             <div th:replace="~{fragments/file-fragment.html}"></div>
@@ -181,7 +184,6 @@
     const formFolder = document.getElementById('form-drop-folder');
     const formFiles = document.getElementById('form-drop-files');
 
-    // Prevent default drag behaviors
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropAreaFolder.addEventListener(eventName, preventDefaults, false)
         dropAreaFiles.addEventListener(eventName, preventDefaults, false)
@@ -189,7 +191,6 @@
         document.body.addEventListener(eventName, preventDefaults, false)
     });
 
-    // Покраска области при наведении
     ['dragenter', 'dragover'].forEach(eventName => {
         dropAreaFolder.addEventListener(eventName, function (e) {
             e.preventDefault();
@@ -218,7 +219,6 @@
         });
     });
 
-    // Handle dropped files
     dropAreaFolder.addEventListener('drop', handleDropFolder, false);
     dropAreaFiles.addEventListener('drop', handleDropFile, false);
 
@@ -231,7 +231,6 @@
         let dt = e.dataTransfer;
         let items = dt.items;
 
-        // Process the dropped folder
         let files = await getFilesFromItems(items);
         insertFilesIntoInput(files);
         formFolder.submit();
@@ -241,7 +240,6 @@
         let dt = e.dataTransfer;
         let items = dt.items;
 
-        // Process the dropped folder
         let files = await getFilesFromItems(items);
         insertFilesIntoInput(files);
         formFiles.submit();
@@ -281,11 +279,9 @@
     }
 
     function insertFilesIntoInput(files) {
-        // Convert the FileList into an array
-        const dataTransfer = new DataTransfer(); // Standard browser API
+        const dataTransfer = new DataTransfer();
         files.forEach(file => dataTransfer.items.add(file));
 
-        // Assign the new files to the input element
         folderInput.files = dataTransfer.files;
         filesInput.files = dataTransfer.files;
 
