@@ -40,6 +40,6 @@ REDIS_HOST=redis
 
 App is available at https://localhost:8081/
 
-![main page](img/image1.png)
-![search page](img/image2.png)
-![sign up page](img/image3.png)
+![main page](img/main_page.png)
+![search page](img/search_page.png)
+![log in page](img/login_page.png)
