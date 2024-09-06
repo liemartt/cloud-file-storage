@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">'
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}">
     <style>
         .drop-area {
             transition: background-color 0.3s;
@@ -143,9 +144,9 @@
 
                 <div th:class="${folders.isEmpty()?'col-md-12':'col-md-6'}" th:if="${!files.isEmpty()}">
                     <h5>Files</h5>
-                    <form id="form-drop-files" action="/files/upload" method="post" enctype="multipart/form-data">
+                    <form id="form-drop-files" action="/files/upload/multiple" method="post" enctype="multipart/form-data">
                         <input type="hidden" name="path" th:value="${path}">
-                        <input type="file" name="file" id="fileElem" hidden>
+                        <input type="file" name="folder" id="fileElem" multiple hidden>
                     </form>
                     <div class="d-flex flex-wrap justify-content-start rounded border border-primary drop-area"
                          id="drop-area-files">
@@ -158,11 +159,9 @@
                     </div>
                 </div>
 
-
                 <div th:if="${files.isEmpty()&&folders.isEmpty()}">
                     <p class="text-center h2 mt-3">Upload your first file here!</p>
                 </div>
-
             </div>
         </main>
     </div>

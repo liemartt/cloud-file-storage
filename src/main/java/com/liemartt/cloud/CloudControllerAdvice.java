@@ -1,6 +1,7 @@
 package com.liemartt.cloud;
 
 import com.liemartt.cloud.exception.*;
+import org.bouncycastle.jce.exception.ExtCertificateEncodingException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -47,7 +48,7 @@ public class CloudControllerAdvice {
     }
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public RedirectView maxUploadSizeException(MaxUploadSizeExceededException e, RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("message", e.getMessage());
+        redirectAttributes.addFlashAttribute("message", e.getMessage() + "(max object size - 100Mb)");
         return new RedirectView("/");
     }
 }

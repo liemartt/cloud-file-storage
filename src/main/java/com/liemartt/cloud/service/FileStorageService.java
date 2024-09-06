@@ -56,7 +56,7 @@ public class FileStorageService extends MinioAbstractClass {
                     .build());
         } catch (Exception e) {
             logger.error("Error uploading file {}: {}", path + file.getOriginalFilename(), e.getMessage());
-            throw new FileOperationException("Error uploading file");
+            throw new FileOperationException("Error uploading file " + file.getOriginalFilename());
         }
     }
     

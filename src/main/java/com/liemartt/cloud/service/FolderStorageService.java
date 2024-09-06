@@ -62,7 +62,6 @@ public class FolderStorageService extends MinioAbstractClass {
             logger.error("Error uploading folder {}: {}", path + Arrays.toString(files), e.getMessage());
             throw new FolderOperationException("Error uploading folder");
         }
-        
     }
     
     public void renameFolder(RenameFolderRequest request) {
@@ -126,7 +125,6 @@ public class FolderStorageService extends MinioAbstractClass {
             throw new FolderOperationException("Error fetching folders");
         }
     }
-    
     
     
 }

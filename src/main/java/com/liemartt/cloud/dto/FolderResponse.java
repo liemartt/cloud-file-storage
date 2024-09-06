@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FolderResponse {
-    private String fullName; // format: user-1-files/f1/f2/f3
-    private String folderName; // format: f3
-    private String path; // format: f1/f2/f3
+    private String fullName;
+    private String folderName;
+    private String path;
     
     public FolderResponse(Item item) {
         fullName = item.objectName();
