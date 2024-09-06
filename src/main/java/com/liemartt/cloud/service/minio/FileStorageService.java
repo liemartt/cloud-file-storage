@@ -6,6 +6,7 @@ import com.liemartt.cloud.dto.file.DownloadFileRequest;
 import com.liemartt.cloud.dto.file.RenameFileRequest;
 import com.liemartt.cloud.dto.file.UploadFileRequest;
 import com.liemartt.cloud.exception.FileOperationException;
+import com.liemartt.cloud.util.PathUtil;
 import io.minio.*;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
@@ -103,6 +104,7 @@ public class FileStorageService extends MinioAbstractClass {
             List<Item> items = minioService.getObjects(path, false);
             return items.stream()
                     .filter(item -> !item.isDir())
+                    .filter(item->!PathUtil.extractObjectName(item.objectName()).equals(PathUtil.extractObjectName(path))) //TODO rewrite
                     .sorted(Comparator.comparing(Item::lastModified).reversed())
                     .map(FileResponse::new)
                     .filter(object -> !object.getName().isBlank())
