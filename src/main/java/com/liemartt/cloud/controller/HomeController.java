@@ -49,7 +49,7 @@ public class HomeController {
         
         String userPath = PathUtil.addUserPrefix(customUserDetails.getId(), path);
         
-        if (!minioService.isPathExists(userPath)) {
+        if (!path.isBlank() && !minioService.isPathExists(userPath)) {
             throw new PathNotExistsException();
         }
         
