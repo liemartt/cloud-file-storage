@@ -58,7 +58,7 @@ public class HomeController {
         List<FolderResponse> userFolders = folderStorageService.getUserFolders(userPath);
         List<FileResponse> userFiles = fileStorageService.getUserFiles(userPath);
         List<BreadcrumbLink> breadcrumbLinks = minioService.getBreadcrumbLinks(path);
-        BigDecimal userFilesSize = userMemoryService.getUserFilesSize(userPath);
+        BigDecimal userFilesSize = userMemoryService.getUserFilesSize(PathUtil.addUserPrefix(customUserDetails.getId(), ""));
         
         
         model.addAttribute("path", path);
